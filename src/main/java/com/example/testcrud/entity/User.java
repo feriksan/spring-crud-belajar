@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Setter
 @Getter
+@Builder
 @Table(name = "user", schema = "testspring")
 public class User {
 
