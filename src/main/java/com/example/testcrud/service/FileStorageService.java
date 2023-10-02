@@ -20,17 +20,28 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class FileStorageService {
     private final Path fileUpload;
+    private final Path fileEncrypt;
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties){
         Path fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir()).toAbsolutePath().normalize();
         this.fileUpload = Paths.get(fileStorageProperties.getUploadDir());
-
+        this.fileEncrypt = Paths.get(fileStorageProperties.getEncryptedDocDir());
         try{
             Files.createDirectories(fileStorageLocation);
             Files.createDirectories(this.fileUpload);
+            Files.createDirectories(this.fileEncrypt);
         }catch (Exception ex){
             throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
+        }
+    }
+
+    public void writeFile(byte[] content, String filename){
+        try{
+            Path targetLocation = fileEncrypt.resolve(filename+".bin");
+            Files.write(targetLocation, content);
+        }catch (IOException ex){
+            throw new FileStorageException("Could not store file " + filename + ". Please try again!", ex);
         }
     }
 

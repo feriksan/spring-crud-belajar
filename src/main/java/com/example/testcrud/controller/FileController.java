@@ -1,6 +1,7 @@
 package com.example.testcrud.controller;
 
 import com.example.testcrud.payload.UploadFileResponse;
+import com.example.testcrud.service.FileEncrypterService;
 import com.example.testcrud.service.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -28,8 +29,12 @@ public class FileController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private FileEncrypterService encrypterService;
+
     @PostMapping("/uploadSatu")
-    public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {
+    public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file){
+        String encrypt = encrypterService.base64Encoding(file);
         String fileName = fileStorageService.storeFile(file);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
