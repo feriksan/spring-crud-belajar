@@ -39,8 +39,8 @@ class UserControllerTest {
     @BeforeEach
     public void init(){
         user = User.builder()
-                .Username("test")
-                .Password("12345")
+                .username("test")
+                .password("12345")
                 .build();
     }
 

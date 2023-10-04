@@ -20,20 +20,19 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue
-    private int UserID;
-    private String Username;
-    private String Password;
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    private int userID;
+    private String username;
+    private String password;
+    private String role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority(role));
     }
 
     @Override
     public String getPassword() {
-        return Password;
+        return password;
     }
 
     @Override

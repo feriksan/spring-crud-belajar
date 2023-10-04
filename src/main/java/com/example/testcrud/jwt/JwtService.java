@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -38,6 +39,12 @@ public class JwtService {
                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                .compact();
+    }
+    
+    public String generateToken(
+            UserDetails userDetails
+    ) {
+        return generateToken(new HashMap<>(), userDetails);
     }
     
     public boolean isTokenValid(String token, UserDetails userDetails){
