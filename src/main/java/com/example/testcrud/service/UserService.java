@@ -21,17 +21,17 @@ public class UserService {
         return repository.findAll();
     }
 
-    public User getUserById(int id){
-        return repository.findById(id).orElse(null);
+    public User getUserById(String username){
+        return repository.findById(username).orElse(null);
     }
 
-    public String deleteUser(int id){
-        repository.deleteById(id);
-        return "user telah dihapus "+ id;
+    public String deleteUser(String username){
+        repository.deleteById(username);
+        return "user telah dihapus "+ username;
     }
 
     public User userUpdate(User user){
-        User exsistingUser = repository.findById(user.getUserID()).orElse(null);
+        User exsistingUser = repository.findByUsername(user.getUsername()).orElse(null);
         exsistingUser.setUsername(user.getUsername());
         return repository.save(exsistingUser);
     }

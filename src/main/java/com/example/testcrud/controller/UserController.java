@@ -26,12 +26,12 @@ public class UserController {
     }
 
     @GetMapping("getUserById/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable  int id){
+    public ResponseEntity<User> getUserById(@PathVariable  String id){
         return new ResponseEntity<>(service.getUserById(id), HttpStatus.OK);
     }
 
     @PutMapping("/deletUser/{id}")
-    public  ResponseEntity<String> deleteUser(@PathVariable int id){
+    public  ResponseEntity<String> deleteUser(@PathVariable String id){
         return new ResponseEntity<>(service.deleteUser(id), HttpStatus.OK);
     }
 

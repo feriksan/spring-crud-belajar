@@ -6,7 +6,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -15,15 +17,22 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-@Table(name = "user", schema = "testspring")
+@Table(name = "user")
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
-    private int userID;
     private String username;
     private String password;
+    @Column(name = "role_name", nullable = false)
     private String role;
+    private int enabled;
+    private String nama;
+    private String email;
+    private String phone;
+    @Column(insertable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Timestamp date_created;
+    
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
