@@ -1,8 +1,6 @@
 package com.example.testcrud.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,12 +13,14 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @Data
 @Builder
+@Table(name = "roles")
 public class Roles {
     
     @Id
     @GeneratedValue
-    private int id;
-    private String username;
-    private String activity;
-    private Timestamp ts;
+    @Column(name = "role_name")
+    private String roleName;
+    private String description;
+    @Column(name = "parent_role_name")
+    private String parentRoleName;
 }

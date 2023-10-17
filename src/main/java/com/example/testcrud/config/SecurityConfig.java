@@ -43,6 +43,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/uploadFile/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/metadataMaster/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/roles/**").hasAnyAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
