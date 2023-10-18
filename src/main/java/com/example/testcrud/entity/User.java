@@ -29,7 +29,7 @@ public class User implements UserDetails {
     private String nama;
     private String email;
     private String phone;
-    @Column(insertable = false, updatable = false)
+    @Column(name = "date_created", insertable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Timestamp date_created;
     
