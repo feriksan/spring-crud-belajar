@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("roles")
@@ -41,8 +42,13 @@ public class RolesController {
     }
     
     @PutMapping("/updateRoles")
-    public  ResponseEntity<Roles> updateUser(@RequestBody Roles roles){
-        return new ResponseEntity<>(service.updateRole(roles), HttpStatus.OK);
+    public  ResponseEntity<?> updateUser(@RequestBody Roles roles){
+        try {
+            Roles updatedRole = service.updateRole(roles);
+            return new ResponseEntity<>(updatedRole, HttpStatus.OK);
+        }catch (NullPointerException e){
+            return new ResponseEntity<>("Roles Not Found", HttpStatus.NOT_FOUND);
+        }
     }
     
 }

@@ -17,7 +17,6 @@ import java.sql.Timestamp;
 public class Roles {
     
     @Id
-    @GeneratedValue
     @Column(name = "role_name")
     private String roleName;
     private String description;
