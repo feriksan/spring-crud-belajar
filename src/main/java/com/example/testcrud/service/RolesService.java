@@ -1,11 +1,13 @@
 package com.example.testcrud.service;
 
 import com.example.testcrud.entity.Roles;
+import com.example.testcrud.helper.FindByNullChecker;
 import com.example.testcrud.repository.RolesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RolesService {
@@ -21,8 +23,9 @@ public class RolesService {
     public Roles findByRoleName(String role){return rolesRepository.findById(role).orElse(null);}
     
     public Roles updateRole(Roles roles){
-        Roles existingRole = rolesRepository.findById(roles.getRoleName()).orElse(null);
-        existingRole.setDescription(roles.getDescription());
+        Roles existingRole = rolesRepository.findById(roles.getRoleName()).orElseThrow(NullPointerException::new);
+        existingRole.setDescription(roles.getDescription() != null ? roles.getDescription() : existingRole.getDescription());
+        existingRole.setParentRoleName(roles.getParentRoleName() != null ? roles.getParentRoleName() : existingRole.getParentRoleName());
         return rolesRepository.save(existingRole);
     }
     

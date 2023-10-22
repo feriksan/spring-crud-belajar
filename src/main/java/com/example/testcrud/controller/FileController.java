@@ -33,9 +33,9 @@ public class FileController {
     private FileEncrypterService encrypterService;
 
     @PostMapping("/uploadSatu")
-    public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file){
-        String encrypt = encrypterService.base64Encoding(file);
-        String fileName = fileStorageService.storeFile(file);
+    public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder){
+        String encrypt = encrypterService.base64Encoding(file, subfolder);
+        String fileName = fileStorageService.storeFile(file, subfolder);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/downloadFile/")
@@ -46,12 +46,12 @@ public class FileController {
                 file.getContentType(), file.getSize());
     }
 
-    @PostMapping("/uploadBanyak")
-    public ResponseEntity<List<UploadFileResponse>> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
-        return new ResponseEntity<>(Arrays.stream(files)
-                .map(this::uploadFile)
-                .collect(Collectors.toList()), HttpStatus.OK);
-    }
+//    @PostMapping("/uploadBanyak")
+//    public ResponseEntity<List<UploadFileResponse>> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files, @RequestParam("subfolder") String subfolder) {
+//        return new ResponseEntity<>(Arrays.stream(files)
+//                .map(this::uploadFile)
+//                .collect(Collectors.toList()), HttpStatus.OK);
+//    }
 
     @GetMapping("/downloadFile/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {

@@ -15,8 +15,8 @@ public class FileUploadService {
     @Autowired
     private FileStorageService fileStorageService;
 
-    public UploadFileResponse uploadFile(MultipartFile file){
-        String fileName = fileStorageService.storeFile(file);
+    public UploadFileResponse uploadFile(MultipartFile file, String subfolder){
+        String fileName = fileStorageService.storeFile(file, subfolder);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/downloadFile/")
@@ -28,10 +28,10 @@ public class FileUploadService {
 
     }
 
-    public List<UploadFileResponse> uploadMultipleFiles(MultipartFile[] files) {
-        return Arrays.stream(files)
-                .map(this::uploadFile)
-                .collect(Collectors.toList());
-    }
+//    public List<UploadFileResponse> uploadMultipleFiles(MultipartFile[] files, String subfolder) {
+//        return Arrays.stream(files)
+//                .map(this::uploadFile)
+//                .collect(Collectors.toList());
+//    }
 
 }
