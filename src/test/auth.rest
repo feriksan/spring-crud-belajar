@@ -1,0 +1,19 @@
+###
+POST http://localhost:99/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "wahyu",
+  "password": "wahyu"
+}
+
+###
+POST http://localhost:99/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "wahyu",
+  "password": "wahyu",
+  "role": "ROLE_ADMIN",
+  "enabled": 1
+}
