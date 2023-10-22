@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -36,16 +37,29 @@ public class FileStorageService {
         }
     }
 
-    public void writeFile(byte[] content, String filename){
+    public void writeFile(byte[] content, String filename, String subfolder){
         try{
-            Path targetLocation = fileEncrypt.resolve(filename+".bin");
+            Path newDirectory = createSubfolder(subfolder, fileEncrypt);
+            Path targetLocation = newDirectory.resolve(filename+".bin");
             Files.write(targetLocation, content);
         }catch (IOException ex){
             throw new FileStorageException("Could not store file " + filename + ". Please try again!", ex);
         }
     }
-
-    public String storeFile(MultipartFile file){
+    
+    private Path createSubfolder(String subfolder, Path fileEncrypt) {
+        File newfolder = new File(fileEncrypt.toString() + "/" + subfolder);
+        if (!newfolder.exists()) {
+            if (newfolder.mkdir()) {
+                System.out.println("Directory is created!");
+            } else {
+                System.out.println("Failed to create directory!");
+            }
+        }
+        return fileEncrypt.resolve(subfolder);
+    }
+    
+    public String storeFile(MultipartFile file, String subfolder){
         String fileName;
         if(file.getOriginalFilename() != null){
             fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -56,7 +70,8 @@ public class FileStorageService {
             if(fileName.contains("..")){
                 throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
             }
-            Path targetLocation = fileUpload.resolve(fileName);
+            Path newDirectory = createSubfolder(subfolder, fileUpload);
+            Path targetLocation = newDirectory.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             return fileName;
         }catch (IOException ex){

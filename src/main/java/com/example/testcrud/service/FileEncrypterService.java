@@ -22,7 +22,7 @@ public class FileEncrypterService {
     @Autowired
     private FileStorageService fileStorageService;
 
-    public String base64Encoding(MultipartFile file){
+    public String base64Encoding(MultipartFile file, String subfolder){
         try {
             String fileName;
             byte[] input_file = file.getBytes();
@@ -36,9 +36,9 @@ public class FileEncrypterService {
             IvParameterSpec iv = generateIv();
             String encryptedText = encrypt(encodedBytes, key, iv);
             String decryptedText = decrypt(encryptedText, key, iv);
-            fileStorageService.writeFile(encryptedText.getBytes(), "encrypted"+fileName);
-            fileStorageService.writeFile(decryptedText.getBytes(), "decrypted"+fileName);
-            fileStorageService.writeFile(encodedBytes, fileName);
+            fileStorageService.writeFile(encryptedText.getBytes(), "encrypted"+fileName, subfolder);
+            fileStorageService.writeFile(decryptedText.getBytes(), "decrypted"+fileName, subfolder);
+            fileStorageService.writeFile(encodedBytes, fileName, subfolder);
             return new String(encodedBytes);
         }catch (IOException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
                 IllegalBlockSizeException | BadPaddingException ex){
