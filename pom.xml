@@ -94,7 +94,7 @@
                 <version>1.14.0</version>
                 <configuration>
                     <installDirectory>C:\Program Files</installDirectory>
-                    <workingDirectory>src/main/react/frontend</workingDirectory>
+                    <workingDirectory>src/main/react/dms-frontend</workingDirectory>
                 </configuration>
                 <executions>
                     <execution>
@@ -117,10 +117,9 @@
                         <configuration>
                             <target name="copy ">
                                 <copy todir="src/main/resources/static/">
-                                    <fileset dir="src/main/react/frontend/build/*">
+                                    <fileset dir="src/main/react/dms-frontend/build/*">
 
                                     </fileset>
-
                                 </copy>
                             </target>
                         </configuration>
