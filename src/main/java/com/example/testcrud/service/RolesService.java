@@ -1,13 +1,11 @@
 package com.example.testcrud.service;
 
 import com.example.testcrud.entity.Roles;
-import com.example.testcrud.helper.FindByNullChecker;
 import com.example.testcrud.repository.RolesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RolesService {
