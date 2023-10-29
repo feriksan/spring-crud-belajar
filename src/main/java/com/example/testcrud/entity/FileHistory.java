@@ -19,8 +19,8 @@ public class FileHistory {
     
     @Id
     @GeneratedValue
-    private int id;
-    private int file_id;
+    private Integer id;
+    private Integer file_id;
     private String file_path;
     private String owner;
     private String type;

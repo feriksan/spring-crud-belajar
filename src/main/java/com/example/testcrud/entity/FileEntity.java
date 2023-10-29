@@ -8,17 +8,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-public class FIleMetadata {
+public class FileEntity {
     
     @Id
     @GeneratedValue
-    private int id;
-    private int file_id;
-    private String metadata_key;
-    private String metadata_value;
+    private Integer id;
+    private String created_by;
+    private Timestamp date_created;
+    private Timestamp date_modified;
 }
