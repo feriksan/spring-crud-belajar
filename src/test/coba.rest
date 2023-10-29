@@ -1,2 +1,2 @@
-GET http://localhost:99/api/coba/getUser/wahyu
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWh5dSIsImlhdCI6MTY5Nzk2ODEyNywiZXhwIjoxNjk3OTY5NTY3fQ.Kz3gjpR4QsKi4H2hCwTGtLCskeeuzYGFc2lFa5I2y-Y
+GET http://localhost:99/api/v1/filedata/get_file_by_user
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWh5dSIsImlhdCI6MTY5ODQ3NjM4MSwiZXhwIjoxNjk4NDc3ODIxfQ.vvb9VBYjXWow5kuZLpJoVoWZGIXevUtwo0rwhiJP8Mc

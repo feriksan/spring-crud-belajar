@@ -1,28 +1,33 @@
 package com.example.testcrud.controller;
 
+import com.example.testcrud.entity.FileEntity;
+import com.example.testcrud.entity.User;
 import com.example.testcrud.payload.UploadFileResponse;
+import com.example.testcrud.service.FileDataService;
 import com.example.testcrud.service.FileEncrypterService;
 import com.example.testcrud.service.FileStorageService;
+import com.example.testcrud.service.FileUploadService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.security.Security;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("uploadFile")
+@RequiredArgsConstructor
 public class FileController {
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
@@ -31,6 +36,8 @@ public class FileController {
 
     @Autowired
     private FileEncrypterService encrypterService;
+
+
 
     @PostMapping("/uploadSatu")
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder){
@@ -77,4 +84,6 @@ public class FileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
+
+
 }

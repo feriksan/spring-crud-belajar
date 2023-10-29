@@ -1,8 +1,12 @@
 package com.example.testcrud.service;
 
+import com.example.testcrud.entity.FileEntity;
 import com.example.testcrud.exception.FileNotFoundException;
 import com.example.testcrud.exception.FileStorageException;
 import com.example.testcrud.properties.FileStorageProperties;
+import com.example.testcrud.repository.FileRepository;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -17,11 +21,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class FileStorageService {
     private final Path fileUpload;
     private final Path fileEncrypt;
+
+
+    @Autowired
+    private FileRepository fileRepository;
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties){
@@ -36,6 +49,8 @@ public class FileStorageService {
             throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
         }
     }
+
+
 
     public void writeFile(byte[] content, String filename, String subfolder){
         try{
