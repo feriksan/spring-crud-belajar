@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface FileHistoryRepo extends JpaRepository<FileHistory,Integer> {
-    Optional<FileHistory> findFirstByFile_idByOrderByIdDesc(Integer fileId);
+//    Optional<FileHistory> findFirstByFileIdByOrderByIdDesc(Integer fileId);
+    Optional<FileHistory> findFirstByFileIdOrderByIdDesc(Integer fileId);
 }

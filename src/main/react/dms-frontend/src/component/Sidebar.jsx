@@ -21,19 +21,19 @@ function getItem(label, key, icon, children, type) {
 }
   
   const items = [
-    getItem('Option 1', '1', <PieChartOutlined />),
-    getItem('Option 2', '2', <DesktopOutlined />),
-    getItem('Option 3', '3', <ContainerOutlined />),
-    getItem('Navigation One', 'sub1', <MailOutlined />, [
-      getItem('Option 5', '5'),
-      getItem('Option 6', '6'),
-      getItem('Option 7', '7'),
-      getItem('Option 8', '8'),
+    getItem('Dashboard', '1', <PieChartOutlined />),
+    getItem('Inbox', '2', <DesktopOutlined />),
+    getItem('Projects', '3', <ContainerOutlined />),
+    getItem('Projects', 'sub1', <MailOutlined />, [
+      getItem('Partner', '5'),
+      getItem('Accounting', '6'),
+      getItem('Human Resource', '7'),
     ]),
-    getItem('Navigation Two', 'sub2', <AppstoreOutlined />, [
-      getItem('Option 9', '9'),
-      getItem('Option 10', '10'),
-      getItem('Submenu', 'sub3', null, [getItem('Option 11', '11'), getItem('Option 12', '12')]),
+    getItem('Admin Tools', 'sub2', <AppstoreOutlined />, [
+      getItem('Manage Users', '9'),
+      getItem('Manage User Groups', '10'),
+      getItem('Manage User Groups', '11'),
+      getItem('More Tools', 'sub3', null, [getItem('Tools 1', '12'), getItem('Tools 2', '13')]),
     ]),
   ];
 

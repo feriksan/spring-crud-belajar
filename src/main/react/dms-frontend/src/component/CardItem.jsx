@@ -6,21 +6,20 @@ import { Card, Col } from 'antd';
 const { Meta } = Card;
 import { Button } from 'antd';
 
-const CardItem = () =>{
-    const [open, setOpen] = useState(false);
-    const showDrawer = () => {
-      setOpen(true);
-    };
+const CardItem = ({triggerDrawer, data}) =>{
+    function openDrawer(dataDrawer){
+      triggerDrawer(dataDrawer, true)
+    }
     return (
-        <Col span={6}>
+        <Col span={6} style={{padding: 10}}>
           <Card
             hoverable
             style={{ width: 240 }}
             cover={<FileOutlined style={{ padding: '50px', fontSize: '100px', color: '#595959' }} />}
           >
-            <Meta title="Nama File" description="deskripsi" />
+            <Meta title={data.filename} description={data.fileSize} />
             <br />
-            <Button type="primary" onClick={showDrawer}>
+            <Button type="primary" onClick={ () => openDrawer(data.filename) }>
               Detail
             </Button>
           </Card>
