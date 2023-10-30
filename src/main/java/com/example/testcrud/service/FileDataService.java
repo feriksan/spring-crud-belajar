@@ -7,7 +7,6 @@ import com.example.testcrud.entity.FileMetadata;
 import com.example.testcrud.payload.MetadataPayload;
 import com.example.testcrud.repository.FileHistoryRepo;
 import com.example.testcrud.repository.FileRepository;
-import com.example.testcrud.repository.MetadataMasterRepository;
 import com.example.testcrud.repository.MetadataRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,12 +53,12 @@ public class FileDataService {
         FileEntity fileEntity1 = fileRepository.saveAndFlush(fileEntity);
 
         FileHistory fileHistory = new FileHistory();
-        fileHistory.setFile_id(fileEntity1.getId());
+        fileHistory.setFileId(fileEntity1.getId());
         fileHistory.setDate_created(fileEntity1.getDate_created());
         fileHistory.setId(null);
         fileHistory.setType("file");
         fileHistory.setModified_by(username);
-        fileHistory.setFile_path(fileName);
+        fileHistory.setFilePath(fileName);
         fileHistory.setOwner(username);
         fileHistory.setDate_modified(fileEntity1.getDate_created());
         FileHistory fileHistory1 = fileHistoryRepo.saveAndFlush(fileHistory);
@@ -73,15 +71,15 @@ public class FileDataService {
     }
 
     public void editMetadata(String username,Integer fileId, MetadataPayload payload) {
-        FileHistory fileHistory = fileHistoryRepo.findFirstByFile_idByOrderByIdDesc(fileId).orElseThrow();
+        FileHistory fileHistory = fileHistoryRepo.findFirstByFileIdOrderByIdDesc(fileId).orElseThrow();
         //duplicate fileHistory
 
         FileHistory baru = new FileHistory();
         baru.setId(null);
-        baru.setFile_id(fileId);
+        baru.setFileId(fileId);
         baru.setOwner(fileHistory.getOwner());
         baru.setModified_by(username);
-        baru.setFile_path(fileHistory.getFile_path());
+        baru.setFilePath(fileHistory.getFilePath());
         baru.setType(fileHistory.getType());
         baru.setDate_modified(Timestamp.valueOf(LocalDateTime.now()));
         baru.setDate_created(fileHistory.getDate_created());

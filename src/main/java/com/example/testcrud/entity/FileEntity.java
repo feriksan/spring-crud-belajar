@@ -1,8 +1,6 @@
 package com.example.testcrud.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,10 +13,11 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @Data
 @Builder
+@Table(name = "files")
 public class FileEntity {
     
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String created_by;
     private Timestamp date_created;
