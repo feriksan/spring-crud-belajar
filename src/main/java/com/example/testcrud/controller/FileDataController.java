@@ -8,6 +8,7 @@ import com.example.testcrud.payload.UploadFileResponse;
 import com.example.testcrud.service.FileDataService;
 import com.example.testcrud.service.FileEncrypterService;
 import com.example.testcrud.service.FileStorageService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,9 @@ public class FileDataController {
     private final FileStorageService fileStorageService;
 
     private final FileEncrypterService encrypterService;
+
+    private final ObjectMapper objectMapper;
+
     @GetMapping("/get_file_by_user")
     public ResponseEntity<List<FileEntity>> getfileByUser() throws Exception {
         String username = getUsername();
@@ -38,11 +42,15 @@ public class FileDataController {
     }
 
     @PostMapping("create_new_file")
-    public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file,@RequestParam("subfolder") String subfolder, @RequestBody MetadataPayload metadataPayload) throws Exception {
+    public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file,@RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload) throws Exception {
+
         String encrypt = encrypterService.base64Encoding(file, subfolder);
         String fileName = fileStorageService.storeFile(file, subfolder);
         String username = getUsername();
-        fileDataService.createNewFile(username,fileName,metadataPayload);
+
+        MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
+
+        fileDataService.createNewFile(username,fileName,metadataPayload1);
         return ResponseEntity.ok("sukses");
     }
 
