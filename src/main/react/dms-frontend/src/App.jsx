@@ -1,5 +1,5 @@
 import React, {Component, useState} from 'react';
-import {App, Layout, theme} from 'antd';
+import {Layout, theme, Skeleton} from 'antd';
 const {  Content, Footer } = Layout;
 import { Col, Row } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
@@ -17,13 +17,18 @@ const onSearch = (value, _e, info) => console.log(info?.source, value);
 class AppComponent extends Component{
   constructor(props) {
     super(props);
-    this.state = {fileArray: null};
+    this.state = {
+      fileArray: null,
+      error:true,
+      loading:true
+    };
   }
 
   async getFiles(){
+    this.setState({loading:true})
     var url = "http://localhost:99/api/v1/filedata/get_file_by_user"
 
-    var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgyNzk4OCwiZXhwIjoxNjk4ODI5NDI4fQ.VOHvksUl1sHNlS-hOcHPr_pUVRHW1rOmvVd_jY5jq6o"
+    var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgyOTUyOSwiZXhwIjoxNjk4ODMwOTY5fQ.bNbB3aaDolphcOg8lBdJVuPvFnEM9NUFP4o3SqBmAV0"
 
     const response = await axios({
       method: 'get',
@@ -35,8 +40,8 @@ class AppComponent extends Component{
     var dataList = []
     response.data.forEach(element => {
       console.log(element)
-      var metadataList = []
-      var fileList = []
+      const metadataList = [];
+      const fileList = [];
       element.fileHistories.forEach(file => {
         file.fileMetadata.forEach(metadata => {
           metadataList.push(metadata)
@@ -56,14 +61,7 @@ class AppComponent extends Component{
       dataList.push(dataCard)
     })
     this.setState({fileArray:dataList})
-    // this.state.fileArray(dataList)
-    //     .then(function (response) {
-    //
-    //     })
-    //     .catch(function (response) {
-    //       const error = new Error("Some error");
-    //       console.log(response);
-    //     });
+    this.setState({loading:false})
   }
 
   componentDidMount() {
@@ -71,10 +69,19 @@ class AppComponent extends Component{
   }
 
   render() {
-    <AppItem/>
+    const {error, loading, fileArray} = this.state;
+    if (loading) {
+      return <Skeleton />; // add a spinner or something until the posts are loaded
+    }
+    // if (error) {
+    //   return <div className="error">Something went wrong</div>;
+    // }
+    return <AppItem fileArray={fileArray}/>
+
   }
 }
-function AppItem(){
+function AppItem(fileArray){
+  console.log(fileArray)
   const {
     token: {colorBgContainer},
   } = theme.useToken();
@@ -156,98 +163,98 @@ function AppItem(){
   const onClose = () => {
     setPrevOpen(false);
   };
-  const getFile = async () => {
-    var url = "http://localhost:99/api/v1/filedata/get_file_by_user"
-
-    var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgyNjQ3NCwiZXhwIjoxNjk4ODI3OTE0fQ.Df51bfKMHOUZoRtBk9tNdKJD-ny0OuSZDQUU-EWIp6I"
-
-    await axios({
-      method: 'get',
-      url: url,
-      headers: {
-        "Authorization": "Bearer " + token,
-      },
-    })
-        .then(function (response) {
-          var dataList = []
-          response.data.forEach(element => {
-            console.log(element)
-            var metadataList = []
-            var fileList = []
-            element.fileHistories.forEach(file => {
-              file.fileMetadata.forEach(metadata => {
-                metadataList.push(metadata)
-              })
-              let files = {
-                "filename": file.filePath,
-                "fileSize": "10Gb",
-                "dateCreated": file.date_created,
-                "metadata": metadataList
-              }
-              fileList.push(files)
-            })
-            var dataCard = {
-              "owner": element.fileHistories[0].owner,
-              "data": fileList
-            }
-            dataList.push(dataCard)
-          })
-          setFileArray(dataList)
-        })
-        .catch(function (response) {
-          const error = new Error("Some error");
-          console.log(response);
-        });
-  }
-  const [fileArray, setFileArray] = useState([{
-        "month": "August",
-        "data": [{
-          filename: 'file 1',
-          fileSize: '20GB',
-          dateCreate: '19 August 2023'
-        },
-          {
-            filename: 'file 2',
-            fileSize: '67GB',
-            dateCreate: '18 August 2023'
-          }]
-      },
-        {
-          "month": "July",
-          "data": [{
-            filename: 'file 2',
-            fileSize: '15GB',
-            dateCreate: '5 July 2023'
-          },]
-        },
-        {
-          "month": "September",
-          "data": [{
-            filename: 'file 3',
-            fileSize: '30GB',
-            dateCreate: '12 September 2023'
-          },]
-        },
-        {
-          "month": "June",
-          "data": [{
-            filename: 'file 4',
-            fileSize: '10GB',
-            dateCreate: '8 June 2023'
-          },]
-        },
-        {
-          "month": "October",
-          "data": [{
-            filename: 'file 5',
-            fileSize: '25GB',
-            dateCreate: '27 October 2023'
-          },]
-        },]
-  )
+  // const getFile = async () => {
+  //   var url = "http://localhost:99/api/v1/filedata/get_file_by_user"
+  //
+  //   var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgyNjQ3NCwiZXhwIjoxNjk4ODI3OTE0fQ.Df51bfKMHOUZoRtBk9tNdKJD-ny0OuSZDQUU-EWIp6I"
+  //
+  //   await axios({
+  //     method: 'get',
+  //     url: url,
+  //     headers: {
+  //       "Authorization": "Bearer " + token,
+  //     },
+  //   })
+  //       .then(function (response) {
+  //         var dataList = []
+  //         response.data.forEach(element => {
+  //           console.log(element)
+  //           var metadataList = []
+  //           var fileList = []
+  //           element.fileHistories.forEach(file => {
+  //             file.fileMetadata.forEach(metadata => {
+  //               metadataList.push(metadata)
+  //             })
+  //             let files = {
+  //               "filename": file.filePath,
+  //               "fileSize": "10Gb",
+  //               "dateCreated": file.date_created,
+  //               "metadata": metadataList
+  //             }
+  //             fileList.push(files)
+  //           })
+  //           var dataCard = {
+  //             "owner": element.fileHistories[0].owner,
+  //             "data": fileList
+  //           }
+  //           dataList.push(dataCard)
+  //         })
+  //         setFileArray(dataList)
+  //       })
+  //       .catch(function (response) {
+  //         const error = new Error("Some error");
+  //         console.log(response);
+  //       });
+  // }
+  // const [fileArray, setFileArray] = useState([{
+  //       "month": "August",
+  //       "data": [{
+  //         filename: 'file 1',
+  //         fileSize: '20GB',
+  //         dateCreate: '19 August 2023'
+  //       },
+  //         {
+  //           filename: 'file 2',
+  //           fileSize: '67GB',
+  //           dateCreate: '18 August 2023'
+  //         }]
+  //     },
+  //       {
+  //         "month": "July",
+  //         "data": [{
+  //           filename: 'file 2',
+  //           fileSize: '15GB',
+  //           dateCreate: '5 July 2023'
+  //         },]
+  //       },
+  //       {
+  //         "month": "September",
+  //         "data": [{
+  //           filename: 'file 3',
+  //           fileSize: '30GB',
+  //           dateCreate: '12 September 2023'
+  //         },]
+  //       },
+  //       {
+  //         "month": "June",
+  //         "data": [{
+  //           filename: 'file 4',
+  //           fileSize: '10GB',
+  //           dateCreate: '8 June 2023'
+  //         },]
+  //       },
+  //       {
+  //         "month": "October",
+  //         "data": [{
+  //           filename: 'file 5',
+  //           fileSize: '25GB',
+  //           dateCreate: '27 October 2023'
+  //         },]
+  //       },]
+  // )
   var itemsCollaps = [];
   var count = 1;
-  fileArray.forEach(element => {
+  fileArray.fileArray.forEach(element => {
     const d = new Date(element.dateCreate);
     let month = d.getMonth();
     var cardItem = [
@@ -304,9 +311,6 @@ function AppItem(){
             <Row gutter={16}>
               <Col className="gutter-row" span={19}>
               <Button type="primary" onClick={showModal}>
-                New File
-              </Button>
-              <Button type="primary" onClick={getFile}>
                 New File
               </Button>
               <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
