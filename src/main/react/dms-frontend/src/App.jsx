@@ -213,6 +213,12 @@ const App = () => {
               background: colorBgContainer,
             }}
           >
+            <svg width={width} height={height}>
+              <path fill="none" stroke="currentColor" stroke-width="1.5" d={line(data)} />
+              <g fill="white" stroke="currentColor" stroke-width="1.5">
+                {data.map((d, i) => (<circle key={i} cx={x(i)} cy={y(d)} r="2.5" />))}
+              </g>
+            </svg>
             <Row gutter={16}>
               <Col className="gutter-row" span={19}>
               <Button type="primary" onClick={showModal}>
