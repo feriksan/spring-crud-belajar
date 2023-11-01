@@ -68,13 +68,13 @@ const App = () => {
         ]
       }
 
-
+      var subfolder = "test3"
       formData.append("file", file);
       formData.append("metadata", JSON.stringify(metadata));
-      formData.append("subfolder", "");
+      formData.append("subfolder", subfolder);
       var url = "http://localhost:99/api/v1/filedata/create_new_file"
 
-      var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODc1Mjg4MCwiZXhwIjoxNjk4NzU0MzIwfQ.m8vP9y760jeiupvP447pSWU40yBtMr4KG-vI9rvrBrM"
+      var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgwMTM3NiwiZXhwIjoxNjk4ODAyODE2fQ.0jaB0GFtTMtYOakE89NeJvDACC7z8U2xr7faG5F5Lks"
 
       axios({
         method: 'post',
@@ -82,12 +82,6 @@ const App = () => {
         data: formData,
         headers: {
           "Authorization": "Bearer "+token,
-          "Access-Control-Allow-Origin":"http://localhost:5173",
-          "Access-Control-Allow-Headers":"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers",
-          "Access-Control-Allow-Methods":"GET, POST, DELETE, PUT, PATCH, HEAD",
-          "Access-Control-Allow-Credentials":"true",
-          "Access-Control-Expose-Headers":"Access-Control-Allow-Origin, Access-Control-Allow-Credentials",
-
         },
         onUploadProgress: event => {
           const percent = Math.floor((event.loaded / event.total) * 100);
@@ -213,12 +207,12 @@ const App = () => {
               background: colorBgContainer,
             }}
           >
-            <svg width={width} height={height}>
-              <path fill="none" stroke="currentColor" stroke-width="1.5" d={line(data)} />
-              <g fill="white" stroke="currentColor" stroke-width="1.5">
-                {data.map((d, i) => (<circle key={i} cx={x(i)} cy={y(d)} r="2.5" />))}
-              </g>
-            </svg>
+            {/*<svg width={width} height={height}>*/}
+            {/*  <path fill="none" stroke="currentColor" stroke-width="1.5" d={line(data)} />*/}
+            {/*  <g fill="white" stroke="currentColor" stroke-width="1.5">*/}
+            {/*    {data.map((d, i) => (<circle key={i} cx={x(i)} cy={y(d)} r="2.5" />))}*/}
+            {/*  </g>*/}
+            {/*</svg>*/}
             <Row gutter={16}>
               <Col className="gutter-row" span={19}>
               <Button type="primary" onClick={showModal}>
