@@ -14,6 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/coba")
 @RequiredArgsConstructor
@@ -23,6 +29,28 @@ public class Coba {
     @GetMapping("/getUser/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username){
         return ResponseEntity.ok(userRepository.findByUsername(username).orElseThrow());
+    }
+    
+    @GetMapping("/getFileList/{url}")
+    public ResponseEntity<Object> getFileListFromFolder(@PathVariable("url") String url){
+        final File folder = new File(url);
+        List<String> files = new ArrayList<>();
+        listFilesForFolder(folder, files);
+        Map<String , Object> data = new HashMap<>();
+        data.put("fileCount", files.size());
+        data.put("file", files);
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+    
+    public List<String> listFilesForFolder(final File folder, List<String> storeFile) {
+        for (final File fileEntry : folder.listFiles()) {
+            if (fileEntry.isDirectory()) {
+                listFilesForFolder(fileEntry, storeFile);
+            } else {
+                storeFile.add(fileEntry.getName());
+            }
+        }
+        return storeFile;
     }
 
     @PostMapping("/getListFile")

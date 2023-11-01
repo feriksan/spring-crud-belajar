@@ -58,7 +58,7 @@ public class FileDataService {
         fileHistory.setId(null);
         fileHistory.setType("file");
         fileHistory.setModified_by(username);
-        fileHistory.setFile_path(fileName);
+        fileHistory.setFilePath(fileName);
         fileHistory.setOwner(username);
         fileHistory.setDate_modified(fileEntity1.getDate_created());
         FileHistory fileHistory1 = fileHistoryRepo.saveAndFlush(fileHistory);
@@ -79,7 +79,7 @@ public class FileDataService {
         baru.setFileId(fileId);
         baru.setOwner(fileHistory.getOwner());
         baru.setModified_by(username);
-        baru.setFile_path(fileHistory.getFile_path());
+        baru.setFilePath(fileHistory.getFilePath());
         baru.setType(fileHistory.getType());
         baru.setDate_modified(Timestamp.valueOf(LocalDateTime.now()));
         baru.setDate_created(fileHistory.getDate_created());

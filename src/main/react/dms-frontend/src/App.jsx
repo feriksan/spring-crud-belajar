@@ -4,35 +4,26 @@ const {  Content, Footer } = Layout;
 import { Col, Row } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { Input, Drawer, Collapse, Button, message, Upload, Modal } from 'antd';
-import * as d3 from "d3";
 const { Search } = Input;
 import Sidebar from './component/Sidebar'
 import HeaderHome from './component/Header'
 import CardItem from './component/CardItem'
 import DrawerContent from './component/DrawerContent'
 const { Dragger } = Upload;
+import axios from 'axios';
 
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 
-const props = {
-  name: 'file',
-  multiple: true,
-  action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== 'uploading') {
-      console.log(info.file, info.fileList);
-    }
-    if (status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log('Dropped files', e.dataTransfer.files);
-  },
+const uploadImage = async options => {
+  const { onSuccess, onError, file, onProgress } = options;
+
+};
+
+const handleOnChange = ({ file, fileList, event }) => {
+  // console.log(file, fileList, event);
+  //Using Hooks to update the state to the current filelist
+  //filelist - [{uid: "-1",url:'Some url to image'}]
 };
 
 const App = () => {
@@ -41,6 +32,83 @@ const App = () => {
   } = theme.useToken();
   const [prevOpen, setPrevOpen] = useState();
   const [drawerData, setDrawerData] = useState();
+  const [progress, setProgress] = useState(0);
+
+  const props = {
+    name: 'file',
+    multiple: true,
+    // action: 'http://localhost:99/api/v1/filedata/create_new_file',
+    // customRequest: {uploadImage},
+    customRequest(info){
+      const { onSuccess, onError, file, onProgress } = info;
+
+      const config = {
+        headers: {
+          "content-type": "multipart/form-data",
+          "Access-Control-Allow-Origin":"*"
+        },
+        onUploadProgress: event => {
+          const percent = Math.floor((event.loaded / event.total) * 100);
+          setProgress(percent);
+          if (percent === 100) {
+            setTimeout(() => setProgress(0), 1000);
+          }
+          onProgress({ percent: (event.loaded / event.total) * 100 });
+        }
+      };
+      var formData = new FormData();
+
+
+      var metadata = {
+        metadata : [
+          {
+            metadata_key:"JENIS_DOKUMEN",
+            metadata_value: "ms.word"
+          }
+        ]
+      }
+
+
+      formData.append("file", file);
+      formData.append("metadata", JSON.stringify(metadata));
+      formData.append("subfolder", "");
+      var url = "http://localhost:99/api/v1/filedata/create_new_file"
+
+      var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODc1Mjg4MCwiZXhwIjoxNjk4NzU0MzIwfQ.m8vP9y760jeiupvP447pSWU40yBtMr4KG-vI9rvrBrM"
+
+      axios({
+        method: 'post',
+        url: url,
+        data: formData,
+        headers: {
+          "Authorization": "Bearer "+token,
+          "Access-Control-Allow-Origin":"http://localhost:5173",
+          "Access-Control-Allow-Headers":"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers",
+          "Access-Control-Allow-Methods":"GET, POST, DELETE, PUT, PATCH, HEAD",
+          "Access-Control-Allow-Credentials":"true",
+          "Access-Control-Expose-Headers":"Access-Control-Allow-Origin, Access-Control-Allow-Credentials",
+
+        },
+        onUploadProgress: event => {
+          const percent = Math.floor((event.loaded / event.total) * 100);
+          setProgress(percent);
+          if (percent === 100) {
+            setTimeout(() => setProgress(0), 1000);
+          }
+          onProgress({ percent: (event.loaded / event.total) * 100 });
+        }
+      })
+          .then(function (response) {
+            onSuccess("Ok");
+            console.log(response);
+          })
+          .catch(function (response) {
+            const error = new Error("Some error");
+            onError({ err });
+            console.log(response);
+          });
+    }
+  };
   const drawerOpen = (data, logic) => {
     setPrevOpen(logic)
     setDrawerData(data)
