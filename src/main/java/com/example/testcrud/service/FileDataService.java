@@ -4,9 +4,11 @@ package com.example.testcrud.service;
 import com.example.testcrud.entity.FileEntity;
 import com.example.testcrud.entity.FileHistory;
 import com.example.testcrud.entity.FileMetadata;
+import com.example.testcrud.payload.FileWithMetadataPayload;
 import com.example.testcrud.payload.MetadataPayload;
 import com.example.testcrud.repository.FileHistoryRepo;
 import com.example.testcrud.repository.FileRepository;
+import com.example.testcrud.repository.FileWithMetadataRepository;
 import com.example.testcrud.repository.MetadataRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +25,14 @@ public class FileDataService {
     private final FileRepository fileRepository;
     private final FileHistoryRepo fileHistoryRepo;
     private final MetadataRepository metadataRepository;
+    private final FileWithMetadataRepository fileWithMetadataRepository;
 
     public List<FileEntity> getFileByUser(String username){
 
         //TODO : database masih kosong, ini sementara dummy buat testing di UI
 
         //return fileRepository.findByCreated_by(username);
-
+        List<FileWithMetadataPayload> filesMetadata = fileWithMetadataRepository.getAllFilesWithMetada();
         List<FileEntity> ret = new ArrayList<>();
         for(int i=0;i<5;i++){
             FileEntity file = new FileEntity();

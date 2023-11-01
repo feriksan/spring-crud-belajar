@@ -50,8 +50,6 @@ public class FileStorageService {
         }
     }
 
-
-
     public void writeFile(byte[] content, String filename, String subfolder){
         try{
             Path newDirectory = createSubfolder(subfolder, fileEncrypt);
