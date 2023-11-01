@@ -37,8 +37,6 @@ public class FileController {
     @Autowired
     private FileEncrypterService encrypterService;
 
-
-
     @PostMapping("/uploadSatu")
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder){
         String encrypt = encrypterService.base64Encoding(file, subfolder);

@@ -5,26 +5,14 @@ import { Col, Row } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { Input, Drawer, Collapse, Button, message, Upload, Modal } from 'antd';
 const { Search } = Input;
-import Sidebar from './component/Sidebar'
-import HeaderHome from './component/Header'
+import Sidebar from './component/Navigation/Sidebar.jsx'
+import HeaderHome from './component/Navigation/Header.jsx'
 import CardItem from './component/CardItem'
 import DrawerContent from './component/DrawerContent'
 const { Dragger } = Upload;
 import axios from 'axios';
 
-
 const onSearch = (value, _e, info) => console.log(info?.source, value);
-
-const uploadImage = async options => {
-  const { onSuccess, onError, file, onProgress } = options;
-
-};
-
-const handleOnChange = ({ file, fileList, event }) => {
-  // console.log(file, fileList, event);
-  //Using Hooks to update the state to the current filelist
-  //filelist - [{uid: "-1",url:'Some url to image'}]
-};
 
 const App = () => {
   const {
@@ -37,8 +25,6 @@ const App = () => {
   const props = {
     name: 'file',
     multiple: true,
-    // action: 'http://localhost:99/api/v1/filedata/create_new_file',
-    // customRequest: {uploadImage},
     customRequest(info){
       const { onSuccess, onError, file, onProgress } = info;
 
@@ -110,74 +96,52 @@ const App = () => {
   const onClose = () => {
     setPrevOpen(false);
   };
-  const [fileArray, setFileArray] = useState([{
-  "month":"August",
-  "data":[{
-    filename: 'file 1',
-    fileSize: '20GB',
-    dateCreate: '19 August 2023'
-  },
-  {
-    filename: 'file 2',
-    fileSize: '67GB',
-    dateCreate: '18 August 2023'
-  }]
-  },
-  {
-    "month":"July",
-    "data":[{
-      filename: 'file 2',
-      fileSize: '15GB',
-      dateCreate: '5 July 2023'
-    },]
-  },
-  {
-    "month":"September",
-    "data":[{
-      filename: 'file 3',
-      fileSize: '30GB',
-      dateCreate: '12 September 2023'
-    },]
-  },
-  {
-    "month":"June",
-    "data":[{
-      filename: 'file 4',
-      fileSize: '10GB',
-      dateCreate: '8 June 2023'
-    },]
-  },
-  {
-    "month":"October",
-    "data":[{
-      filename: 'file 5',
-      fileSize: '25GB',
-      dateCreate: '27 October 2023'
-    },]
-  },])
+  const getFile = async() => {
+    var url = "http://localhost:99/api/v1/filedata/get_file_by_user"
+
+    var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgxMTE5OCwiZXhwIjoxNjk4ODEyNjM4fQ.KDorjEbzqnKT4ahb7AHbRUYQj450lzNHyWqwsmeNBOg"
+
+    await axios({
+      method: 'get',
+      url: url,
+      headers: {
+        "Authorization": "Bearer "+token,
+      },
+    })
+        .then(function (response) {
+          setFileArray(response.data)
+          console.log(response);
+        })
+        .catch(function (response) {
+          const error = new Error("Some error");
+          console.log(response);
+        });
+  }
+  const [fileArray, setFileArray] = useState()
   var itemsCollaps = [];
   var count = 1;
-  fileArray.forEach(element => {
-    const d = new Date(element.dateCreate);
-    let month = d.getMonth();
-    var cardItem = [
-            <Row gutter={16}>
-              {
-                element.data.map(cardData => {
-                  return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
-                })
-              }
-            </Row>
-          ]
-    var itemObject = {
-      key: count,
-      label: element.month,
-      children: cardItem,
-    }
+  if(fileArray == undefined || fileArray == null || typeof fileArray == "undefined" || fileArray == "undefined"){
+    fileArray.forEach(element => {
+      const d = new Date(element.dateCreate);
+      let month = d.getMonth();
+      var cardItem = [
+        <Row gutter={16}>
+          {
+            element.fileHistories[0].map(cardData => {
+              return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
+            })
+          }
+        </Row>
+      ]
+      var itemObject = {
+        key: count,
+        label: element.month,
+        children: cardItem,
+      }
       itemsCollaps.push(itemObject)
       count++
-  });
-
+    });
+  }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
     setIsModalOpen(true);
@@ -216,6 +180,9 @@ const App = () => {
             <Row gutter={16}>
               <Col className="gutter-row" span={19}>
               <Button type="primary" onClick={showModal}>
+                New File
+              </Button>
+              <Button type="primary" onClick={getFile}>
                 New File
               </Button>
               <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
