@@ -17,9 +17,9 @@ const CardItem = ({triggerDrawer, data}) =>{
             style={{ width: 240 }}
             cover={<FileOutlined style={{ padding: '50px', fontSize: '100px', color: '#595959' }} />}
           >
-            <Meta title={data.owner} description={data.filePath} />
+            <Meta title={data.filename} description={data.fileSize} />
             <br />
-            <Button type="primary" onClick={ () => openDrawer(data.owner) }>
+            <Button type="primary" onClick={ () => openDrawer(data.metadata) }>
               Detail
             </Button>
           </Card>

@@ -7,6 +7,7 @@ import {
     ShareAltOutlined,
     DeleteOutlined
 } from '@ant-design/icons';
+import CardItem from "./CardItem.jsx";
 
 const onFinish = (values) => {
     console.log('Success:', values);
@@ -17,6 +18,7 @@ const onFinish = (values) => {
 const handleChange = (value) => {
     console.log(`selected ${value}`);
 };
+
 
 const DrawerContent = ({drawerData}) =>{
     const [size, setSize] = useState('large')
@@ -46,6 +48,17 @@ const DrawerContent = ({drawerData}) =>{
             />,
         }
       ];
+    drawerData.forEach(metadata=>{
+        var cardItem = [
+            <Row gutter={16}>
+                {
+                    metadata.map(metadataText => {
+                        return <div>{metadataText}</div>
+                    })
+                }
+            </Row>
+        ]
+    })
     return (
         <Space align="center" direction="vertical" size="large" style={{ display: 'flex' }}>
             <Card
@@ -66,10 +79,7 @@ const DrawerContent = ({drawerData}) =>{
                 width: 300,
                 }}
             >
-                <div>Metadata File</div>
-                <div>Upload Timestamp</div>
-                <div>Owner</div>
-                <div>Last Edit/User</div>
+                cardItem
             </Card>
             <Collapse items={items} defaultActiveKey={['1']} ghost onChange={onChange} />
             {/* <Form
