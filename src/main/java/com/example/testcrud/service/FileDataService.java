@@ -28,21 +28,8 @@ public class FileDataService {
     private final FileWithMetadataRepository fileWithMetadataRepository;
 
     public List<FileEntity> getFileByUser(String username){
+        return fileRepository.findByCreated(username);
 
-        //TODO : database masih kosong, ini sementara dummy buat testing di UI
-
-        //return fileRepository.findByCreated_by(username);
-        List<FileWithMetadataPayload> filesMetadata = fileWithMetadataRepository.getAllFilesWithMetada();
-        List<FileEntity> ret = new ArrayList<>();
-        for(int i=0;i<5;i++){
-            FileEntity file = new FileEntity();
-            file.setId(i);
-            file.setDate_created(Timestamp.valueOf(LocalDateTime.now()));
-            file.setDate_modified(Timestamp.valueOf(LocalDateTime.now()));
-            file.setCreated_by("wahyu");
-            ret.add(file);
-        }
-        return ret;
     }
 
     @Transactional
@@ -56,7 +43,7 @@ public class FileDataService {
         FileEntity fileEntity1 = fileRepository.saveAndFlush(fileEntity);
 
         FileHistory fileHistory = new FileHistory();
-        fileHistory.setFileId(fileEntity1.getId());
+        fileHistory.setFile(fileEntity1);
         fileHistory.setDate_created(fileEntity1.getDate_created());
         fileHistory.setId(null);
         fileHistory.setType("file");
@@ -68,7 +55,7 @@ public class FileDataService {
 
         List<FileMetadata> metadata = metadataPayload.getMetadata();
         for (FileMetadata metadatum : metadata) {
-            metadatum.setFile_id(fileHistory1.getId());
+            metadatum.setFileHistory(fileHistory1);
         }
         metadataRepository.saveAll(metadata);
     }
@@ -79,7 +66,7 @@ public class FileDataService {
 
         FileHistory baru = new FileHistory();
         baru.setId(null);
-        baru.setFileId(fileId);
+        baru.setFile(new FileEntity(fileId));
         baru.setOwner(fileHistory.getOwner());
         baru.setModified_by(username);
         baru.setFilePath(fileHistory.getFilePath());
@@ -92,7 +79,7 @@ public class FileDataService {
         //buat metadata yang baru
         List<FileMetadata> metadata = payload.getMetadata();
         for (FileMetadata metadatum : metadata) {
-            metadatum.setFile_id(fileHistory1.getId());
+            metadatum.setFileHistory(fileHistory1);
         }
         metadataRepository.saveAll(metadata);
 

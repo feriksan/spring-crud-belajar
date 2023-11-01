@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -22,4 +23,12 @@ public class FileEntity {
     private String created_by;
     private Timestamp date_created;
     private Timestamp date_modified;
+
+    @OneToMany(mappedBy = "file")
+    private List<FileHistory> fileHistories;
+
+    public FileEntity(Integer fileId){
+        this.id = fileId;
+    }
+
 }
