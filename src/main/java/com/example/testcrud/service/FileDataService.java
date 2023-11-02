@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,30 @@ public class FileDataService {
 
     public List<FileEntity> getFileByUser(String username){
         return fileRepository.findByCreated(username);
+    }
+
+    public List<Object> getFileByUserGroupByDate(String username){
+        List<Object> allFiles = new ArrayList<>();
+        List<FileEntity> files = fileRepository.findByCreated(username);
+        List<Object> listFilePerDate = new ArrayList<>();
+        int month = 1;
+        for(FileEntity file:files){
+            Date date = new Date(file.getDate_created().getTime());
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            System.out.println(cal.get(Calendar.MONTH));
+            if(cal.get(Calendar.MONTH) == month){
+                listFilePerDate.add(file);
+            }else{
+                Map<String, Object> data = new HashMap<>();
+                data.put("Owner", file.getCreated_by());
+                data.put("Files", listFilePerDate);
+                data.put("Date", file.getDate_created());
+
+                month = cal.get(Calendar.MONTH);
+            }
+        }
+        return listFilePerDate;
     }
 
     @Transactional
@@ -41,7 +65,7 @@ public class FileDataService {
         fileHistory.setFile(fileEntity1);
         fileHistory.setDate_created(fileEntity1.getDate_created());
         fileHistory.setId(null);
-        fileHistory.setType("file");
+        fileHistory.setType("CREATE");
         fileHistory.setModified_by(username);
         fileHistory.setFilePath(fileName);
         fileHistory.setOwner(username);

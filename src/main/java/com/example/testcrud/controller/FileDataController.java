@@ -47,6 +47,15 @@ public class FileDataController {
         return ResponseEntity.ok(fileDataService.getFileByUser(username));
     }
 
+    @GetMapping("/get_file_by_month")
+    public ResponseEntity<List<Object>> getFileByUserGroupByMonth() throws Exception{
+        String username = getUsername();
+        if(username==null){
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(fileDataService.getFileByUserGroupByDate(username));
+    }
+
     @PostMapping("create_new_file")
     public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload) throws Exception {
 
