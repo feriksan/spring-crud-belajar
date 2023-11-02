@@ -13,7 +13,7 @@ const { Dragger } = Upload;
 import axios from 'axios';
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
-const tokenAPI = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODg5NjQ1OSwiZXhwIjoxNjk4ODk3ODk5fQ.rrmeVKCiQnReCxlGmkPrCygR4ewdn3zDdljSYmX4TW8"
+const tokenAPI = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODg5ODQzMywiZXhwIjoxNjk4ODk5ODczfQ.2-DUl8tWir2HGTlsKfM_bZhQ0nESWdahKxWIgE_CqzY"
 const urlGetFile = "/api/v1/filedata/get_file_by_user";
 const urlNewFile = "/api/v1/filedata/create_new_file";
 
@@ -215,7 +215,9 @@ function ContentDashboard(fileArray){
   var itemsCollaps = [];
   var count = 1;
   fileArray.fileArray.forEach(element => {
-    var cardItem = [
+    console.log(element)
+    // const month = date.getMonth()
+    const cardItem = [
       <Row gutter={16}>
         {
           element.data.map(cardData => {
@@ -223,12 +225,12 @@ function ContentDashboard(fileArray){
           })
         }
       </Row>
-    ]
-    var itemObject = {
+    ];
+    const itemObject = {
       key: count,
-      label: element.owner,
+      label: date,
       children: cardItem,
-    }
+    };
     itemsCollaps.push(itemObject)
     count++
   });
