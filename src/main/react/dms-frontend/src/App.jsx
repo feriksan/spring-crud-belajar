@@ -1,8 +1,8 @@
 import React, {Component, useState} from 'react';
-import {Layout, theme, Skeleton} from 'antd';
+import {Layout, theme, Skeleton, Switch, List, Avatar} from 'antd';
 const {  Content, Footer } = Layout;
 import { Col, Row } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
+import {InboxOutlined, LikeOutlined, MessageOutlined, StarOutlined} from '@ant-design/icons';
 import { Input, Drawer, Collapse, Button, message, Upload, Modal } from 'antd';
 const { Search } = Input;
 import Sidebar from './component/Navigation/Sidebar.jsx'
@@ -13,6 +13,9 @@ const { Dragger } = Upload;
 import axios from 'axios';
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
+const tokenAPI = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODg5NDkzMywiZXhwIjoxNjk4ODk2MzczfQ.bjGKzlxVsuauLnqLD4k3p7GLKA1ijvZTHCz7ck9FrUI"
+const urlGetFile = "/api/v1/filedata/get_file_by_user";
+const urlNewFile = "/api/v1/filedata/create_new_file";
 
 class AppComponent extends Component{
   constructor(props) {
@@ -26,18 +29,15 @@ class AppComponent extends Component{
 
   async getFiles(){
     this.setState({loading:true})
-    var url = "http://localhost:99/api/v1/filedata/get_file_by_user"
-
-    var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgyOTUyOSwiZXhwIjoxNjk4ODMwOTY5fQ.bNbB3aaDolphcOg8lBdJVuPvFnEM9NUFP4o3SqBmAV0"
 
     const response = await axios({
       method: 'get',
-      url: url,
+      url: urlGetFile,
       headers: {
-        "Authorization": "Bearer " + token,
+        "Authorization": "Bearer " + tokenAPI,
       },
     })
-    var dataList = []
+    const dataList = [];
     response.data.forEach(element => {
       console.log(element)
       const metadataList = [];
@@ -71,17 +71,86 @@ class AppComponent extends Component{
   render() {
     const {error, loading, fileArray} = this.state;
     if (loading) {
-      return <Skeleton />; // add a spinner or something until the posts are loaded
+      return (
+          <AppItem>
+            <Skeleton active />
+          </AppItem>
+      )
     }
     // if (error) {
     //   return <div className="error">Something went wrong</div>;
     // }
-    return <AppItem fileArray={fileArray}/>
-
+    return <AppItem>
+      <ContentDashboard fileArray={fileArray}/>
+    </AppItem>
   }
 }
-function AppItem(fileArray){
-  console.log(fileArray)
+// const IconText = ({ icon, text }) => (
+//     <>
+//       {React.createElement(icon, {
+//         style: {
+//           marginRight: 8,
+//         },
+//       })}
+//       {text}
+//     </>
+// );
+// function NotRendered({listData}){
+//   const [loading, setLoading] = useState(true);
+//   const onChange = (checked) => {
+//     setLoading(!checked);
+//   };
+//   return (
+//       <>
+//         <Switch
+//             checked={!loading}
+//             onChange={onChange}
+//             style={{
+//               marginBottom: 16,
+//             }}
+//         />
+//         <List
+//             itemLayout="vertical"
+//             size="large"
+//             dataSource={listData}
+//             renderItem={(item) => (
+//                 <List.Item
+//                     key={item.title}
+//                     actions={
+//                       !loading
+//                           ? [
+//                             <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
+//                             <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
+//                             <IconText icon={MessageOutlined} text="2" key="list-vertical-message" />,
+//                           ]
+//                           : undefined
+//                     }
+//                     extra={
+//                         !loading && (
+//                             <img
+//                                 width={272}
+//                                 alt="logo"
+//                                 src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+//                             />
+//                         )
+//                     }
+//                 >
+//                   <Skeleton loading={loading} active avatar>
+//                     <List.Item.Meta
+//                         avatar={<Avatar src={item.avatar} />}
+//                         title={<a href={item.href}>{item.title}</a>}
+//                         description={item.description}
+//                     />
+//                     {item.content}
+//                   </Skeleton>
+//                 </List.Item>
+//             )}
+//         />
+//       </>
+//   );
+// }
+
+function ContentDashboard(fileArray){
   const {
     token: {colorBgContainer},
   } = theme.useToken();
@@ -94,47 +163,27 @@ function AppItem(fileArray){
     multiple: true,
     customRequest(info) {
       const {onSuccess, onError, file, onProgress} = info;
-
-      const config = {
-        headers: {
-          "content-type": "multipart/form-data",
-          "Access-Control-Allow-Origin": "*"
-        },
-        onUploadProgress: event => {
-          const percent = Math.floor((event.loaded / event.total) * 100);
-          setProgress(percent);
-          if (percent === 100) {
-            setTimeout(() => setProgress(0), 1000);
-          }
-          onProgress({percent: (event.loaded / event.total) * 100});
-        }
-      };
-      var formData = new FormData();
-
-
-      var metadata = {
+      const formData = new FormData();
+      const metadata = {
         metadata: [
           {
             metadata_key: "JENIS_DOKUMEN",
             metadata_value: "ms.word"
           }
         ]
-      }
+      };
 
-      var subfolder = "test3"
+      const subfolder = "test3";
       formData.append("file", file);
       formData.append("metadata", JSON.stringify(metadata));
       formData.append("subfolder", subfolder);
-      var url = "http://localhost:99/api/v1/filedata/create_new_file"
-
-      var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgwMTM3NiwiZXhwIjoxNjk4ODAyODE2fQ.0jaB0GFtTMtYOakE89NeJvDACC7z8U2xr7faG5F5Lks"
 
       axios({
         method: 'post',
-        url: url,
+        url: urlNewFile,
         data: formData,
         headers: {
-          "Authorization": "Bearer " + token,
+          "Authorization": "Bearer " + tokenAPI,
         },
         onUploadProgress: event => {
           const percent = Math.floor((event.loaded / event.total) * 100);
@@ -151,7 +200,7 @@ function AppItem(fileArray){
           })
           .catch(function (response) {
             const error = new Error("Some error");
-            onError({err});
+            onError({error});
             console.log(response);
           });
     }
@@ -163,100 +212,9 @@ function AppItem(fileArray){
   const onClose = () => {
     setPrevOpen(false);
   };
-  // const getFile = async () => {
-  //   var url = "http://localhost:99/api/v1/filedata/get_file_by_user"
-  //
-  //   var token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODgyNjQ3NCwiZXhwIjoxNjk4ODI3OTE0fQ.Df51bfKMHOUZoRtBk9tNdKJD-ny0OuSZDQUU-EWIp6I"
-  //
-  //   await axios({
-  //     method: 'get',
-  //     url: url,
-  //     headers: {
-  //       "Authorization": "Bearer " + token,
-  //     },
-  //   })
-  //       .then(function (response) {
-  //         var dataList = []
-  //         response.data.forEach(element => {
-  //           console.log(element)
-  //           var metadataList = []
-  //           var fileList = []
-  //           element.fileHistories.forEach(file => {
-  //             file.fileMetadata.forEach(metadata => {
-  //               metadataList.push(metadata)
-  //             })
-  //             let files = {
-  //               "filename": file.filePath,
-  //               "fileSize": "10Gb",
-  //               "dateCreated": file.date_created,
-  //               "metadata": metadataList
-  //             }
-  //             fileList.push(files)
-  //           })
-  //           var dataCard = {
-  //             "owner": element.fileHistories[0].owner,
-  //             "data": fileList
-  //           }
-  //           dataList.push(dataCard)
-  //         })
-  //         setFileArray(dataList)
-  //       })
-  //       .catch(function (response) {
-  //         const error = new Error("Some error");
-  //         console.log(response);
-  //       });
-  // }
-  // const [fileArray, setFileArray] = useState([{
-  //       "month": "August",
-  //       "data": [{
-  //         filename: 'file 1',
-  //         fileSize: '20GB',
-  //         dateCreate: '19 August 2023'
-  //       },
-  //         {
-  //           filename: 'file 2',
-  //           fileSize: '67GB',
-  //           dateCreate: '18 August 2023'
-  //         }]
-  //     },
-  //       {
-  //         "month": "July",
-  //         "data": [{
-  //           filename: 'file 2',
-  //           fileSize: '15GB',
-  //           dateCreate: '5 July 2023'
-  //         },]
-  //       },
-  //       {
-  //         "month": "September",
-  //         "data": [{
-  //           filename: 'file 3',
-  //           fileSize: '30GB',
-  //           dateCreate: '12 September 2023'
-  //         },]
-  //       },
-  //       {
-  //         "month": "June",
-  //         "data": [{
-  //           filename: 'file 4',
-  //           fileSize: '10GB',
-  //           dateCreate: '8 June 2023'
-  //         },]
-  //       },
-  //       {
-  //         "month": "October",
-  //         "data": [{
-  //           filename: 'file 5',
-  //           fileSize: '25GB',
-  //           dateCreate: '27 October 2023'
-  //         },]
-  //       },]
-  // )
   var itemsCollaps = [];
   var count = 1;
   fileArray.fileArray.forEach(element => {
-    const d = new Date(element.dateCreate);
-    let month = d.getMonth();
     var cardItem = [
       <Row gutter={16}>
         {
@@ -286,34 +244,20 @@ function AppItem(fileArray){
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-        <Sidebar />
-      <Layout>
-        <HeaderHome />
-        <Content
+    <>
+      <div
           style={{
-            margin: '24px 16px 0',
+            padding: 24,
+            minHeight: 500,
+            background: colorBgContainer,
           }}
-        >
-          <div
-            style={{
-              padding: 24,
-              minHeight: 500,
-              background: colorBgContainer,
-            }}
-          >
-            {/*<svg width={width} height={height}>*/}
-            {/*  <path fill="none" stroke="currentColor" stroke-width="1.5" d={line(data)} />*/}
-            {/*  <g fill="white" stroke="currentColor" stroke-width="1.5">*/}
-            {/*    {data.map((d, i) => (<circle key={i} cx={x(i)} cy={y(d)} r="2.5" />))}*/}
-            {/*  </g>*/}
-            {/*</svg>*/}
-            <Row gutter={16}>
-              <Col className="gutter-row" span={19}>
-              <Button type="primary" onClick={showModal}>
-                New File
-              </Button>
-              <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+      >
+        <Row gutter={16}>
+          <Col className="gutter-row" span={19}>
+            <Button type="primary" onClick={showModal}>
+              New File
+            </Button>
+            <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
               <Dragger {...props}>
                 <p className="ant-upload-drag-icon">
                   <InboxOutlined />
@@ -324,24 +268,43 @@ function AppItem(fileArray){
                   banned files.
                 </p>
               </Dragger>
-              </Modal>
-              </Col>
-              <Col className="gutter-row" span={5}>
-              <Search
-                  placeholder="input search text"
-                  onSearch={onSearch}
-                  style={{
-                    width: 200,
-                  }}
-              />
-              </Col>
-            </Row>
-            <br />
-            <Collapse defaultActiveKey={['1']} ghost items={itemsCollaps} />
-          </div>
-          <Drawer title="File Detail" placement="right" onClose={onClose} open={prevOpen}>
-              <DrawerContent drawerData={drawerData}/>
-          </Drawer>
+            </Modal>
+          </Col>
+          <Col className="gutter-row" span={5}>
+            <Search
+                placeholder="input search text"
+                onSearch={onSearch}
+                style={{
+                  width: 200,
+                }}
+            />
+          </Col>
+        </Row>
+        <br />
+        <Collapse defaultActiveKey={['1']} ghost items={itemsCollaps} />
+      </div>
+      <Drawer title="File Detail" placement="right" onClose={onClose} open={prevOpen}>
+        <DrawerContent drawerData={drawerData}/>
+      </Drawer>
+    </>
+  );
+}
+function AppItem({children}){
+  const {
+    token: {colorBgContainer},
+  } = theme.useToken();
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+        <Sidebar />
+      <Layout>
+        <HeaderHome />
+        <Content
+          style={{
+            margin: '24px 16px 0',
+          }}
+        >
+          {children}
         </Content>
         <Footer
           style={{
