@@ -13,7 +13,7 @@ const { Dragger } = Upload;
 import axios from 'axios';
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
-const tokenAPI = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODg5NDkzMywiZXhwIjoxNjk4ODk2MzczfQ.bjGKzlxVsuauLnqLD4k3p7GLKA1ijvZTHCz7ck9FrUI"
+const tokenAPI = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODg5NjQ1OSwiZXhwIjoxNjk4ODk3ODk5fQ.rrmeVKCiQnReCxlGmkPrCygR4ewdn3zDdljSYmX4TW8"
 const urlGetFile = "/api/v1/filedata/get_file_by_user";
 const urlNewFile = "/api/v1/filedata/create_new_file";
 
