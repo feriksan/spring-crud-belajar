@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/v1/filedata")
 @RequiredArgsConstructor
@@ -47,6 +48,15 @@ public class FileDataController {
         return ResponseEntity.ok(fileDataService.getFileByUser(username));
     }
 
+    @GetMapping("/get_file_by_month")
+    public ResponseEntity<List<Object>> getFileByUserGroupByMonth() throws Exception{
+        String username = getUsername();
+        if(username==null){
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(fileDataService.getFileByUserGroupByDate(username));
+    }
+
     @PostMapping("create_new_file")
     public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload) throws Exception {
 
@@ -56,7 +66,7 @@ public class FileDataController {
 
         MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
 
-        fileDataService.createNewFile(username,fileName,metadataPayload1);
+        fileDataService.createNewFile(username,fileName,metadataPayload1, subfolder);
         return ResponseEntity.ok("sukses");
     }
 
