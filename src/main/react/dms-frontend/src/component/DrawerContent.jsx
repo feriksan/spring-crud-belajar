@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Card, Space, Button, Row, Col, Timeline, Collapse } from 'antd';
+import { Card, Space, Button, Row, Col, Timeline, Collapse, Tag } from 'antd';
 import {
     FileOutlined,
     DownloadOutlined,
@@ -42,7 +42,7 @@ const DrawerContent = ({drawerData}) =>{
         <Row gutter={16}>
             {
                 drawerData.map(metadataText => {
-                    return <div>{metadataText.metadata_value}</div>
+                    return <div><Tag>{metadataText.metadata_value}</Tag></div>
                 })
             }
         </Row>
