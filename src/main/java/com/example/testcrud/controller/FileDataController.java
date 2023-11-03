@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/v1/filedata")
 @RequiredArgsConstructor
@@ -65,7 +66,7 @@ public class FileDataController {
 
         MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
 
-        fileDataService.createNewFile(username,fileName,metadataPayload1);
+        fileDataService.createNewFile(username,fileName,metadataPayload1, subfolder);
         return ResponseEntity.ok("sukses");
     }
 

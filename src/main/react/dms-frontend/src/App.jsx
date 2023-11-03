@@ -13,9 +13,9 @@ const { Dragger } = Upload;
 import axios from 'axios';
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
-const tokenAPI = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODg5ODQzMywiZXhwIjoxNjk4ODk5ODczfQ.2-DUl8tWir2HGTlsKfM_bZhQ0nESWdahKxWIgE_CqzY"
-const urlGetFile = "/api/v1/filedata/get_file_by_user";
-const urlNewFile = "/api/v1/filedata/create_new_file";
+const tokenAPI = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODk5NDUyNywiZXhwIjoxNzAwNDM0NTI3fQ.d_WgS3IhSd7kdcsEaXY-R9zKEH_tMZIyjQ2AKgYM4Wk"
+const urlGetFile = "http://localhost:99/api/v1/filedata/get_file_by_user";
+const urlNewFile = "http://localhost:99/api/v1/filedata/create_new_file";
 
 class AppComponent extends Component{
   constructor(props) {
@@ -39,7 +39,6 @@ class AppComponent extends Component{
     })
     const dataList = [];
     response.data.forEach(element => {
-      console.log(element)
       const metadataList = [];
       const fileList = [];
       element.fileHistories.forEach(file => {
@@ -214,9 +213,8 @@ function ContentDashboard(fileArray){
   };
   var itemsCollaps = [];
   var count = 1;
+  let cardItemNotGroup = [];
   fileArray.fileArray.forEach(element => {
-    console.log(element)
-    // const month = date.getMonth()
     const cardItem = [
       <Row gutter={16}>
         {
@@ -226,14 +224,31 @@ function ContentDashboard(fileArray){
         }
       </Row>
     ];
-    const itemObject = {
-      key: count,
-      label: date,
-      children: cardItem,
-    };
-    itemsCollaps.push(itemObject)
+    const cardItemNotGroupItem = [
+            element.data.map(cardData => {
+              return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
+            })
+    ]
+    cardItemNotGroup.push(cardItemNotGroupItem)
+    // const itemObject = {
+    //   key: count,
+    //   label: element.owner,
+    //   children: cardItemNotGroup,
+    // };
+    // itemsCollaps.push(itemObject)
     count++
   });
+
+  const itemObject = {
+    key: count,
+    label: "Data",
+    children: [
+        <Row>
+          {cardItemNotGroup}
+        </Row>
+    ],
+  };
+  itemsCollaps.push(itemObject)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
     setIsModalOpen(true);

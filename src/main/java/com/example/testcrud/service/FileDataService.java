@@ -52,9 +52,10 @@ public class FileDataService {
     }
 
     @Transactional
-    public void createNewFile(String username, String fileName, MetadataPayload metadataPayload) {
+    public void createNewFile(String username, String fileName, MetadataPayload metadataPayload, String subfolder) {
         FileEntity fileEntity = new FileEntity();
         fileEntity.setId(null);
+        fileEntity.setSubfolder(subfolder);
         fileEntity.setDate_created(Timestamp.valueOf(LocalDateTime.now()));
         fileEntity.setDate_modified(Timestamp.valueOf(LocalDateTime.now()));
         fileEntity.setCreated_by(username);
