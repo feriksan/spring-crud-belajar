@@ -9,6 +9,7 @@ import Sidebar from './component/Navigation/Sidebar.jsx'
 import HeaderHome from './component/Navigation/Header.jsx'
 import CardItem from './component/CardItem'
 import DrawerContent from './component/DrawerContent'
+import Login from "./Page/Auth/Login.jsx";
 const { Dragger } = Upload;
 import axios from 'axios';
 
@@ -23,7 +24,9 @@ class AppComponent extends Component{
     this.state = {
       fileArray: null,
       error:true,
-      loading:true
+      loading:true,
+      isLogin:false,
+      token:null
     };
   }
 
@@ -63,12 +66,27 @@ class AppComponent extends Component{
     this.setState({loading:false})
   }
 
+  handleLogin = (token) =>{
+    console.log("Login")
+    console.log(token)
+    this.setState({
+      isLogin:true,
+      token:token
+    })
+  }
+
   componentDidMount() {
+    if(!this.state.isLogin){
+      return;
+    }
     this.getFiles();
   }
 
   render() {
-    const {error, loading, fileArray} = this.state;
+    const {isLogin, loading, fileArray} = this.state;
+    if (!isLogin) {
+      return <Login loginHandler={this.handleLogin}></Login>;
+    }
     if (loading) {
       return (
           <AppItem>
@@ -76,9 +94,6 @@ class AppComponent extends Component{
           </AppItem>
       )
     }
-    // if (error) {
-    //   return <div className="error">Something went wrong</div>;
-    // }
     return <AppItem>
       <ContentDashboard fileArray={fileArray}/>
     </AppItem>
@@ -148,7 +163,6 @@ class AppComponent extends Component{
 //       </>
 //   );
 // }
-
 function ContentDashboard(fileArray){
   const {
     token: {colorBgContainer},
