@@ -1,6 +1,6 @@
 import React, {Component, useState} from 'react';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, Row, Col, Card } from 'antd';
+import {LockOutlined, UserOutlined} from '@ant-design/icons';
+import {Button, Card, Checkbox, Col, Form, Input, Row} from 'antd';
 import './auth.css'
 import axios from "axios";
 
@@ -13,7 +13,6 @@ class Login extends Component{
         };
     }
     loginDone(ada){
-        console.log(ada)
         this.props.loginHandler()
     }
 
@@ -27,7 +26,7 @@ class Login extends Component{
                         <br/>
                         <br/>
                         <br/>
-                        <Button onClick={() => this.loginDone("HAI")}></Button>
+                        {/*<Button onClick={() => this.loginDone("HAI")}></Button>*/}
                         <AuthHandler loginHandler={this.props.loginHandler}/>
                     </Col>
                 </Row>
@@ -108,10 +107,9 @@ function RegisterForm(){
     )
 }
 
-function LoginForm({auth}){
+function LoginForm({login}){
     const onFinish = (values) => {
-        {auth}
-        // AuthAPI(values)
+        AuthAPI(values, login)
     };
     return(
         <Form
@@ -170,9 +168,6 @@ function LoginForm({auth}){
 }
 
 function AuthHandler({loginHandler}){
-    const runLogin = (data) =>{
-        {loginHandler(data)}
-    }
     const tabList = [
         {
             key: 'tab1',
@@ -184,7 +179,7 @@ function AuthHandler({loginHandler}){
         },
     ];
     const contentList = {
-        tab1: <LoginForm login={() => runLogin("TEST")}/>,
+        tab1: <LoginForm login={loginHandler}/>,
         tab2: <RegisterForm/>,
     };
     const [activeTabKey1, setActiveTabKey1] = useState('tab1');
@@ -208,20 +203,16 @@ function AuthHandler({loginHandler}){
     )
 }
 
-async function AuthAPI(data){
+async function AuthAPI(data, loginHandler){
     console.log(data)
     const urlLogin = "http://localhost:99/api/auth/login";
-    const loginData =
-        {
-            "username":"feriksan",
-            "password":"12345"
-        }
     const response = await axios({
         method: 'post',
         url: urlLogin,
-        data: loginData,
+        data: data,
+    }).then(response => {
+        loginHandler(response.data.token)
     })
-    console.log(response);
 }
 
 export default Login;

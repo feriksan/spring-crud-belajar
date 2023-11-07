@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react';
+import React, {Component, useState, useEffect} from 'react';
 import {Layout, theme, Skeleton, Switch, List, Avatar} from 'antd';
 const {  Content, Footer } = Layout;
 import { Col, Row } from 'antd';
@@ -31,13 +31,14 @@ class AppComponent extends Component{
   }
 
   async getFiles(){
-    this.setState({loading:true})
+    console.log("begin get file")
+    const {token} = this.state;
 
     const response = await axios({
       method: 'get',
       url: urlGetFile,
       headers: {
-        "Authorization": "Bearer " + tokenAPI,
+        "Authorization": "Bearer " + token,
       },
     })
     const dataList = [];
@@ -67,23 +68,36 @@ class AppComponent extends Component{
   }
 
   handleLogin = (token) =>{
-    console.log("Login")
-    console.log(token)
     this.setState({
       isLogin:true,
       token:token
     })
+    localStorage.setItem('isLogin', "login");
+    localStorage.setItem('token', token);
   }
 
+
   componentDidMount() {
-    if(!this.state.isLogin){
-      return;
+    const login = localStorage.getItem('isLogin');
+    const token = localStorage.getItem('token');
+    console.log("mount")
+    if(login === "login"){
+      this.setState({
+        isLogin:true,
+        token:token
+      })
     }
-    this.getFiles();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log("Cek Login")
+    console.log(this.state.isLogin)
+    prevState.isLogin === this.state.isLogin ? console.log('already login') : this.getFiles()
   }
 
   render() {
     const {isLogin, loading, fileArray} = this.state;
+
     if (!isLogin) {
       return <Login loginHandler={this.handleLogin}></Login>;
     }
