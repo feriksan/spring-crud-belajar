@@ -1,20 +1,35 @@
-import React, {Component, useState, useEffect} from 'react';
-import {Layout, theme, Skeleton, Switch, List, Avatar} from 'antd';
+import React, {Component, useState } from 'react';
+import {
+  Input,
+  Drawer,
+  Collapse,
+  Button,
+  Upload,
+  Modal,
+  Form,
+  Layout,
+  theme,
+  Skeleton,
+  Col,
+  Row} from 'antd';
 const {  Content, Footer } = Layout;
-import { Col, Row } from 'antd';
-import {InboxOutlined, LikeOutlined, MessageOutlined, StarOutlined} from '@ant-design/icons';
-import { Input, Drawer, Collapse, Button, message, Upload, Modal } from 'antd';
+const { Dragger } = Upload;
 const { Search } = Input;
+import {
+  InboxOutlined,
+  MinusCircleOutlined,
+  PlusOutlined
+} from '@ant-design/icons';
 import Sidebar from './component/Navigation/Sidebar.jsx'
 import HeaderHome from './component/Navigation/Header.jsx'
 import CardItem from './component/CardItem'
 import DrawerContent from './component/DrawerContent'
 import Login from "./Page/Auth/Login.jsx";
-const { Dragger } = Upload;
+
 import axios from 'axios';
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
-const tokenAPI = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmZXJpa3NhbiIsImlhdCI6MTY5ODk5NDUyNywiZXhwIjoxNzAwNDM0NTI3fQ.d_WgS3IhSd7kdcsEaXY-R9zKEH_tMZIyjQ2AKgYM4Wk"
+let tokenAPI = ""
 const urlGetFile = "http://localhost:99/api/v1/filedata/get_file_by_user";
 const urlNewFile = "http://localhost:99/api/v1/filedata/create_new_file";
 
@@ -26,7 +41,7 @@ class AppComponent extends Component{
       error:true,
       loading:true,
       isLogin:false,
-      token:null
+      token:null,
     };
   }
 
@@ -38,7 +53,7 @@ class AppComponent extends Component{
       method: 'get',
       url: urlGetFile,
       headers: {
-        "Authorization": "Bearer " + token,
+        "Authorization": "Bearer " + tokenAPI,
       },
     })
     const dataList = [];
@@ -72,6 +87,7 @@ class AppComponent extends Component{
       isLogin:true,
       token:token
     })
+    tokenAPI = token
     localStorage.setItem('isLogin', "login");
     localStorage.setItem('token', token);
   }
@@ -80,7 +96,7 @@ class AppComponent extends Component{
   componentDidMount() {
     const login = localStorage.getItem('isLogin');
     const token = localStorage.getItem('token');
-    console.log("mount")
+    tokenAPI = token
     if(login === "login"){
       this.setState({
         isLogin:true,
@@ -113,70 +129,6 @@ class AppComponent extends Component{
     </AppItem>
   }
 }
-// const IconText = ({ icon, text }) => (
-//     <>
-//       {React.createElement(icon, {
-//         style: {
-//           marginRight: 8,
-//         },
-//       })}
-//       {text}
-//     </>
-// );
-// function NotRendered({listData}){
-//   const [loading, setLoading] = useState(true);
-//   const onChange = (checked) => {
-//     setLoading(!checked);
-//   };
-//   return (
-//       <>
-//         <Switch
-//             checked={!loading}
-//             onChange={onChange}
-//             style={{
-//               marginBottom: 16,
-//             }}
-//         />
-//         <List
-//             itemLayout="vertical"
-//             size="large"
-//             dataSource={listData}
-//             renderItem={(item) => (
-//                 <List.Item
-//                     key={item.title}
-//                     actions={
-//                       !loading
-//                           ? [
-//                             <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
-//                             <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
-//                             <IconText icon={MessageOutlined} text="2" key="list-vertical-message" />,
-//                           ]
-//                           : undefined
-//                     }
-//                     extra={
-//                         !loading && (
-//                             <img
-//                                 width={272}
-//                                 alt="logo"
-//                                 src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
-//                             />
-//                         )
-//                     }
-//                 >
-//                   <Skeleton loading={loading} active avatar>
-//                     <List.Item.Meta
-//                         avatar={<Avatar src={item.avatar} />}
-//                         title={<a href={item.href}>{item.title}</a>}
-//                         description={item.description}
-//                     />
-//                     {item.content}
-//                   </Skeleton>
-//                 </List.Item>
-//             )}
-//         />
-//       </>
-//   );
-// }
 function ContentDashboard(fileArray){
   const {
     token: {colorBgContainer},
@@ -184,52 +136,110 @@ function ContentDashboard(fileArray){
   const [prevOpen, setPrevOpen] = useState();
   const [drawerData, setDrawerData] = useState();
   const [progress, setProgress] = useState(0);
+  const [files, setFiles] = useState();
+
+  const formHandler = (data) =>{
+    console.log(data)
+    const formData = new FormData();
+    const metadata = {
+      metadata: [
+        {
+          metadata_key: "JENIS_DOKUMEN",
+          metadata_value: "ms.word"
+        }
+      ]
+    };
+    const subfolder = "test3";
+    formData.append("file", files);
+    formData.append("metadata", JSON.stringify(metadata));
+    formData.append("subfolder", subfolder);
+    axios({
+      method: 'post',
+      url: urlNewFile,
+      data: formData,
+      headers: {
+        "Authorization": "Bearer " + tokenAPI,
+      },
+      onUploadProgress: event => {
+            const percent = Math.floor((event.loaded / event.total) * 100);
+            setProgress(percent);
+            if (percent === 100) {
+              setTimeout(() => setProgress(0), 1000);
+            }
+            // onProgress({percent: (event.loaded / event.total) * 100});
+          }
+    })
+        .then(function (response) {
+          // onSuccess("Ok");
+          console.log(response);
+        })
+        .catch(function (response) {
+          const error = new Error("Some error");
+          // onError({error});
+          console.log(response);
+        });
+  }
 
   const props = {
     name: 'file',
     multiple: true,
     customRequest(info) {
-      const {onSuccess, onError, file, onProgress} = info;
-      const formData = new FormData();
-      const metadata = {
-        metadata: [
-          {
-            metadata_key: "JENIS_DOKUMEN",
-            metadata_value: "ms.word"
-          }
-        ]
-      };
-
-      const subfolder = "test3";
-      formData.append("file", file);
-      formData.append("metadata", JSON.stringify(metadata));
-      formData.append("subfolder", subfolder);
-
-      axios({
-        method: 'post',
-        url: urlNewFile,
-        data: formData,
-        headers: {
-          "Authorization": "Bearer " + tokenAPI,
-        },
-        onUploadProgress: event => {
-          const percent = Math.floor((event.loaded / event.total) * 100);
-          setProgress(percent);
-          if (percent === 100) {
-            setTimeout(() => setProgress(0), 1000);
-          }
-          onProgress({percent: (event.loaded / event.total) * 100});
-        }
-      })
-          .then(function (response) {
-            onSuccess("Ok");
-            console.log(response);
-          })
-          .catch(function (response) {
-            const error = new Error("Some error");
-            onError({error});
-            console.log(response);
-          });
+      const {
+        // onSuccess,
+        // onError,
+        file,
+        onProgress
+      } = info;
+      setFiles(file)
+      const percent = Math.floor((event.loaded / event.total) * 100);
+      setProgress(percent);
+      if (percent === 100) {
+        setTimeout(() => setProgress(0), 1000);
+      }
+      onProgress({percent: (event.loaded / event.total) * 100});
+      // const formData = new FormData();
+      // const metadata = {
+      //   metadata: [
+      //     {
+      //       metadata_key: "JENIS_DOKUMEN",
+      //       metadata_value: "ms.word"
+      //     }
+      //   ]
+      // };
+      //
+      // const subfolder = "test3";
+      // console.log("Get File from function")
+      // console.log(file)
+      // formData.append("file", file);
+      // formData.append("metadata", JSON.stringify(metadata));
+      // formData.append("subfolder", subfolder);
+      // console.log(formData)
+      //
+      // axios({
+      //   method: 'post',
+      //   url: urlNewFile,
+      //   data: formData,
+      //   headers: {
+      //     "Authorization": "Bearer " + tokenAPI,
+      //   },
+      //   onUploadProgress: event => {
+      //     const percent = Math.floor((event.loaded / event.total) * 100);
+      //     setProgress(percent);
+      //     if (percent === 100) {
+      //       setTimeout(() => setProgress(0), 1000);
+      //     }
+      //     onProgress({percent: (event.loaded / event.total) * 100});
+      //   }
+      // })
+      //     .then(function (response) {
+      //       onSuccess("Ok");
+      //       console.log(response);
+      //     })
+      //     .catch(function (response) {
+      //       const error = new Error("Some error");
+      //       onError({error});
+      //       console.log(response);
+      //     });
     }
   };
   const drawerOpen = (data, logic) => {
@@ -238,6 +248,10 @@ function ContentDashboard(fileArray){
   }
   const onClose = () => {
     setPrevOpen(false);
+  };
+  const onFinish = (values) => {
+    formHandler(values)
+    console.log('Received values of form: ', values);
   };
   var itemsCollaps = [];
   var count = 1;
@@ -253,9 +267,9 @@ function ContentDashboard(fileArray){
       </Row>
     ];
     const cardItemNotGroupItem = [
-            element.data.map(cardData => {
-              return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
-            })
+      element.data.map(cardData => {
+        return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
+      })
     ]
     cardItemNotGroup.push(cardItemNotGroupItem)
     // const itemObject = {
@@ -287,6 +301,30 @@ function ContentDashboard(fileArray){
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+  const formItemLayout = {
+    labelCol: {
+      xs: { span: 24 },
+      sm: { span: 4 },
+    },
+    wrapperCol: {
+      xs: { span: 24 },
+      sm: { span: 20 },
+    },
+  };
+
+  const formItemLayoutWithOutLabel = {
+    wrapperCol: {
+      xs: { span: 24, offset: 0 },
+      sm: { span: 20, offset: 4 },
+    },
+  };
+  const normFile = (e) => {
+    console.log('Upload event:', e);
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
 
   return (
     <>
@@ -303,16 +341,83 @@ function ContentDashboard(fileArray){
               New File
             </Button>
             <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-              <Dragger {...props}>
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                <p className="ant-upload-hint">
-                  Support for a single or bulk upload. Strictly prohibited from uploading company data or other
-                  banned files.
-                </p>
-              </Dragger>
+              <Form
+                onFinish={onFinish}
+              >
+                <Form.List
+                    name="names"
+                    rules={[
+                      {
+                        validator: async (_, names) => {
+                          if (!names || names.length < 2) {
+                            return Promise.reject(new Error('please input metadata'));
+                          }
+                        },
+                      },
+                    ]}
+                >
+                  {(fields, { add, remove }, { errors }) => (
+                      <>
+                        {fields.map((field, index) => (
+                            <Form.Item
+                                {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+                                label={index === 0 ? 'Passengers' : ''}
+                                required={false}
+                                key={field.key}
+                            >
+                              <Form.Item
+                                  {...field}
+                                  validateTrigger={['onChange', 'onBlur']}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      whitespace: true,
+                                    },
+                                  ]}
+                                  noStyle
+                              >
+                                <Input placeholder="Metadata Value" style={{ width: '60%' }} />
+                              </Form.Item>
+                              {fields.length > 1 ? (
+                                  <MinusCircleOutlined
+                                      className="dynamic-delete-button"
+                                      onClick={() => remove(field.name)}
+                                  />
+                              ) : null}
+                            </Form.Item>
+                        ))}
+                        <Form.Item>
+                          <Button
+                              type="dashed"
+                              onClick={() => add()}
+                              style={{ width: '60%' }}
+                              icon={<PlusOutlined />}
+                          >
+                            Add field
+                          </Button>
+                          <Form.ErrorList errors={errors} />
+                        </Form.Item>
+                      </>
+                  )}
+                </Form.List>
+                <Form.Item label="Dragger">
+                  <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
+                    <Dragger {...props}>
+                      <p className="ant-upload-drag-icon">
+                        <InboxOutlined />
+                      </p>
+                      <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                      <p className="ant-upload-hint">
+                        Support for a single or bulk upload. Strictly prohibited from uploading company data or other
+                        banned files.
+                      </p>
+                    </Dragger>
+                  </Form.Item>
+                </Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Submit
+                </Button>
+              </Form>
             </Modal>
           </Col>
           <Col className="gutter-row" span={5}>
@@ -335,10 +440,6 @@ function ContentDashboard(fileArray){
   );
 }
 function AppItem({children}){
-  const {
-    token: {colorBgContainer},
-  } = theme.useToken();
-
   return (
     <Layout style={{ minHeight: '100vh' }}>
         <Sidebar />
@@ -356,7 +457,7 @@ function AppItem({children}){
             textAlign: 'center',
           }}
         >
-          Ant Design ©2023 Created by Ant UED
+          Smary DMS ©2023 Created by Antama Sinergi Persada
         </Footer>
       </Layout>
     </Layout>
