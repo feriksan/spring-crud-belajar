@@ -11,7 +11,8 @@ import {
     theme,
     Skeleton,
     Col,
-    Row} from 'antd';
+    Row, Space, Select
+} from 'antd';
 const {  Content, Footer } = Layout;
 const { Dragger } = Upload;
 const { Search } = Input;
@@ -140,6 +141,7 @@ function ContentDashboard(fileArray){
     const [drawerData, setDrawerData] = useState();
     const [progress, setProgress] = useState(0);
     const [files, setFiles] = useState();
+    const [metadata, setMetadata] = useState([]);
 
     const formHandler = (data) =>{
         console.log(data)
@@ -216,6 +218,7 @@ function ContentDashboard(fileArray){
     var itemsCollaps = [];
     var count = 1;
     let cardItemNotGroup = [];
+    let inputMetadata = []
     fileArray.fileArray.forEach(element => {
         const cardItem = [
             <Row gutter={16}>
@@ -280,6 +283,24 @@ function ContentDashboard(fileArray){
         return e?.fileList;
     };
 
+    const options = [];
+    options.push({
+        label: "Jenis Dokumen",
+        value: "Jenis Dokumen",
+    });
+    options.push({
+        label: "Divisi",
+        value: "Divisi",
+    });
+    options.push({
+        label: "Ukuran File",
+        value: "Ukuran File",
+    });
+    const handleChange = (value) => {
+        setMetadata(value)
+        console.log(`selected ${value}`);
+    };
+
     return (
         <>
             <div
@@ -298,62 +319,90 @@ function ContentDashboard(fileArray){
                             <Form
                                 onFinish={onFinish}
                             >
-                                <Form.List
-                                    name="names"
-                                    rules={[
-                                        {
-                                            validator: async (_, names) => {
-                                                if (!names || names.length < 2) {
-                                                    return Promise.reject(new Error('please input metadata'));
-                                                }
-                                            },
-                                        },
-                                    ]}
-                                >
-                                    {(fields, { add, remove }, { errors }) => (
-                                        <>
-                                            {fields.map((field, index) => (
-                                                <Form.Item
-                                                    {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                                                    label={index === 0 ? 'Passengers' : ''}
-                                                    required={false}
-                                                    key={field.key}
-                                                >
-                                                    <Form.Item
-                                                        {...field}
-                                                        validateTrigger={['onChange', 'onBlur']}
-                                                        rules={[
-                                                            {
-                                                                required: true,
-                                                                whitespace: true,
-                                                            },
-                                                        ]}
-                                                        noStyle
-                                                    >
-                                                        <Input placeholder="Metadata Value" style={{ width: '60%' }} />
-                                                    </Form.Item>
-                                                    {fields.length > 1 ? (
-                                                        <MinusCircleOutlined
-                                                            className="dynamic-delete-button"
-                                                            onClick={() => remove(field.name)}
-                                                        />
-                                                    ) : null}
-                                                </Form.Item>
-                                            ))}
-                                            <Form.Item>
-                                                <Button
-                                                    type="dashed"
-                                                    onClick={() => add()}
-                                                    style={{ width: '60%' }}
-                                                    icon={<PlusOutlined />}
-                                                >
-                                                    Add field
-                                                </Button>
-                                                <Form.ErrorList errors={errors} />
-                                            </Form.Item>
-                                        </>
-                                    )}
-                                </Form.List>
+                                <Form.Item
+                                    label="Pilih Metadata Master">
+                                    <Space
+                                        style={{
+                                            width: '100%',
+                                        }}
+                                        direction="vertical"
+                                    >
+                                        <Select
+                                            mode="multiple"
+                                            allowClear
+                                            style={{
+                                                width: '100%',
+                                            }}
+                                            placeholder="Please select"
+                                            onChange={handleChange}
+                                            options={options}
+                                        />
+                                    </Space>
+                                </Form.Item>
+                                {metadata.map(element =>{
+                                    return <Form.Item
+                                        label={element}
+                                        name={element}
+                                    >
+                                        <Input placeholder={element}/>
+                                    </Form.Item>
+                                })}
+                                {/*<Form.List*/}
+                                {/*    name="names"*/}
+                                {/*    rules={[*/}
+                                {/*        {*/}
+                                {/*            validator: async (_, names) => {*/}
+                                {/*                if (!names || names.length < 2) {*/}
+                                {/*                    return Promise.reject(new Error('please input metadata'));*/}
+                                {/*                }*/}
+                                {/*            },*/}
+                                {/*        },*/}
+                                {/*    ]}*/}
+                                {/*>*/}
+                                {/*    {(fields, { add, remove }, { errors }) => (*/}
+                                {/*        <>*/}
+                                {/*            {fields.map((field, index) => (*/}
+                                {/*                <Form.Item*/}
+                                {/*                    {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}*/}
+                                {/*                    label={index === 0 ? 'Passengers' : ''}*/}
+                                {/*                    required={false}*/}
+                                {/*                    key={field.key}*/}
+                                {/*                >*/}
+                                {/*                    <Form.Item*/}
+                                {/*                        {...field}*/}
+                                {/*                        validateTrigger={['onChange', 'onBlur']}*/}
+                                {/*                        rules={[*/}
+                                {/*                            {*/}
+                                {/*                                required: true,*/}
+                                {/*                                whitespace: true,*/}
+                                {/*                            },*/}
+                                {/*                        ]}*/}
+                                {/*                        noStyle*/}
+                                {/*                    >*/}
+                                {/*                        <Input placeholder="Metadata Value" style={{ width: '60%' }} />*/}
+                                {/*                    </Form.Item>*/}
+                                {/*                    {fields.length > 1 ? (*/}
+                                {/*                        <MinusCircleOutlined*/}
+                                {/*                            className="dynamic-delete-button"*/}
+                                {/*                            onClick={() => remove(field.name)}*/}
+                                {/*                        />*/}
+                                {/*                    ) : null}*/}
+                                {/*                </Form.Item>*/}
+                                {/*            ))}*/}
+                                {/*            <Form.Item>*/}
+                                {/*                <Button*/}
+                                {/*                    type="dashed"*/}
+                                {/*                    onClick={() => add()}*/}
+                                {/*                    style={{ width: '60%' }}*/}
+                                {/*                    icon={<PlusOutlined />}*/}
+                                {/*                >*/}
+                                {/*                    Add field*/}
+                                {/*                </Button>*/}
+                                {/*                <Form.ErrorList errors={errors} />*/}
+                                {/*            </Form.Item>*/}
+                                {/*        </>*/}
+                                {/*    )}*/}
+                                {/*</Form.List>*/}
                                 <Form.Item label="Dragger">
                                     <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
                                         <Dragger {...props}>

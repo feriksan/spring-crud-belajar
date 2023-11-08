@@ -1,12 +1,12 @@
 import React, {Component, useState} from 'react';
-import {Button, Form, Input, Modal, Space, Table, Tag} from 'antd';
+import {Button, Form, Input, Modal, Skeleton, Space, Table, Select } from 'antd';
 import LayoutMain from "../../Layout/Layout.jsx";
 import {InboxOutlined, MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
 import axios from "axios";
 const columns = [
     {
         title: 'Metadata Name',
-        dataIndex: 'name',
+        dataIndex: 'metadata_key',
         key: 'name',
         render: (text) => <a>{text}</a>,
     },
@@ -14,26 +14,6 @@ const columns = [
         title: 'Description',
         dataIndex: 'description',
         key: 'description',
-    },
-    {
-        title: 'Metadata Child',
-        key: 'child',
-        dataIndex: 'child',
-        render: (_, { tags }) => (
-            <>
-                {tags.map((tag) => {
-                    let color = tag.length > 5 ? 'geekblue' : 'green';
-                    if (tag === 'loser') {
-                        color = 'volcano';
-                    }
-                    return (
-                        <Tag color={color} key={tag}>
-                            {tag.toUpperCase()}
-                        </Tag>
-                    );
-                })}
-            </>
-        ),
     },
     {
         title: 'Action',
@@ -47,27 +27,23 @@ const columns = [
     },
 ];
 
-const data = [
+let data = [
     {
         key: '1',
-        name: 'File Type',
+        metadata_key: 'File Type',
         description: "file type",
-        tags: ['PDF', 'DOCX', 'XLXS'],
     },
     {
         key: '2',
-        name: 'Urgentcy',
+        metadata_key: 'Urgentcy',
         description: "File Urgentcy",
-        tags: ['important', 'not important', 'ready to delete'],
     },
     {
         key: '3',
-        name: 'Content',
+        metadata_key: 'Content',
         description: "content summary",
-        tags: ['accuntant', 'book'],
     },
 ];
-
 
 class Metadatamaster extends Component{
 
@@ -77,48 +53,59 @@ class Metadatamaster extends Component{
             metadata: null,
             isLogin:false,
             token:null,
+            loading:true
         };
     }
-    async getMetadata({token}){
-        console.log("On Load: "+ token)
+    async getMetadata({tokenData}){
+        console.log("On Load: "+ tokenData)
         const response = await axios({
             method: 'get',
             url: "http://localhost:99/metadataMaster/findAll",
             headers: {
-                "Authorization": "Bearer " + token,
+                "Authorization": "Bearer " + tokenData,
             },
         })
+        let keyCount = 4;
+        let dataTemp = []
+        response.data.forEach(element => {
+            element.key = keyCount
+            dataTemp.push(element)
+            keyCount++
+        })
+        data = dataTemp
         console.log(data)
-        console.log(response.data)
-        this.setState({fileArray:response.data})
         this.setState({loading:false})
     }
 
     componentDidMount() {
         const login = localStorage.getItem('isLogin');
-        const token = localStorage.getItem('token');
-        this.getMetadata({token})
-        // if(login === "login"){
-        //     this.setState({
-        //         isLogin:true,
-        //         token:token
-        //     })
-        //
-        // }
-
+        const tokenData = localStorage.getItem('token');
+        this.getMetadata({tokenData})
+        this.setState({
+            token:tokenData,
+            login:login
+        })
     }
 
     render() {
+        const {loading} = this.state;
+        if(loading){
+            return(
+                <LayoutMain>
+                    <Skeleton active />
+                </LayoutMain>
+                )
+        }
         return (
             <LayoutMain>
-                <ModalHandler />
+                <ModalHandler token={this.state.token}/>
                 <Table columns={columns} dataSource={data} />
             </LayoutMain>
         );
     }
 }
 
-function ModalHandler(){
+function ModalHandler({token}){
     const [isModalOpen, setIsModalOpen] = useState(false);
     const showModal = () => {
         setIsModalOpen(true);
@@ -131,7 +118,24 @@ function ModalHandler(){
     };
     const onFinish = (values) => {
         console.log('Received values of form: ', values);
+        const data = {
+            metadata_key: values.metadataName,
+            description: values.metadataDescription
+        };
+        addMetadata(data)
     };
+    const addMetadata = async(data) => {
+        const response = await axios({
+            method: 'post',
+            url: "http://localhost:99/metadataMaster/create",
+            data:data,
+            headers: {
+                "Authorization": "Bearer " + token,
+            },
+        })
+        console.log(response)
+    }
+
     return(
         <>
             <Button type="primary" onClick={showModal}>
