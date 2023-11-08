@@ -18,8 +18,6 @@ const { Dragger } = Upload;
 const { Search } = Input;
 import {
     InboxOutlined,
-    MinusCircleOutlined,
-    PlusOutlined
 } from '@ant-design/icons';
 import Sidebar from '../../component/Navigation/Sidebar.jsx'
 import HeaderHome from '../../component/Navigation/Header.jsx'
@@ -48,8 +46,6 @@ class DashboardComponent extends Component{
 
     async getFiles(){
         console.log("begin get file")
-        const {token} = this.state;
-
         const response = await axios({
             method: 'get',
             url: urlGetFile,
@@ -218,17 +214,16 @@ function ContentDashboard(fileArray){
     var itemsCollaps = [];
     var count = 1;
     let cardItemNotGroup = [];
-    let inputMetadata = []
     fileArray.fileArray.forEach(element => {
-        const cardItem = [
-            <Row gutter={16}>
-                {
-                    element.data.map(cardData => {
-                        return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
-                    })
-                }
-            </Row>
-        ];
+        // const cardItem = [
+        //     <Row gutter={16}>
+        //         {
+        //             element.data.map(cardData => {
+        //                 return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
+        //             })
+        //         }
+        //     </Row>
+        // ];
         const cardItemNotGroupItem = [
             element.data.map(cardData => {
                 return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
@@ -257,23 +252,6 @@ function ContentDashboard(fileArray){
     };
     const handleCancel = () => {
         setIsModalOpen(false);
-    };
-    const formItemLayout = {
-        labelCol: {
-            xs: { span: 24 },
-            sm: { span: 4 },
-        },
-        wrapperCol: {
-            xs: { span: 24 },
-            sm: { span: 20 },
-        },
-    };
-
-    const formItemLayoutWithOutLabel = {
-        wrapperCol: {
-            xs: { span: 24, offset: 0 },
-            sm: { span: 20, offset: 4 },
-        },
     };
     const normFile = (e) => {
         console.log('Upload event:', e);
@@ -347,62 +325,6 @@ function ContentDashboard(fileArray){
                                         <Input placeholder={element}/>
                                     </Form.Item>
                                 })}
-                                {/*<Form.List*/}
-                                {/*    name="names"*/}
-                                {/*    rules={[*/}
-                                {/*        {*/}
-                                {/*            validator: async (_, names) => {*/}
-                                {/*                if (!names || names.length < 2) {*/}
-                                {/*                    return Promise.reject(new Error('please input metadata'));*/}
-                                {/*                }*/}
-                                {/*            },*/}
-                                {/*        },*/}
-                                {/*    ]}*/}
-                                {/*>*/}
-                                {/*    {(fields, { add, remove }, { errors }) => (*/}
-                                {/*        <>*/}
-                                {/*            {fields.map((field, index) => (*/}
-                                {/*                <Form.Item*/}
-                                {/*                    {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}*/}
-                                {/*                    label={index === 0 ? 'Passengers' : ''}*/}
-                                {/*                    required={false}*/}
-                                {/*                    key={field.key}*/}
-                                {/*                >*/}
-                                {/*                    <Form.Item*/}
-                                {/*                        {...field}*/}
-                                {/*                        validateTrigger={['onChange', 'onBlur']}*/}
-                                {/*                        rules={[*/}
-                                {/*                            {*/}
-                                {/*                                required: true,*/}
-                                {/*                                whitespace: true,*/}
-                                {/*                            },*/}
-                                {/*                        ]}*/}
-                                {/*                        noStyle*/}
-                                {/*                    >*/}
-                                {/*                        <Input placeholder="Metadata Value" style={{ width: '60%' }} />*/}
-                                {/*                    </Form.Item>*/}
-                                {/*                    {fields.length > 1 ? (*/}
-                                {/*                        <MinusCircleOutlined*/}
-                                {/*                            className="dynamic-delete-button"*/}
-                                {/*                            onClick={() => remove(field.name)}*/}
-                                {/*                        />*/}
-                                {/*                    ) : null}*/}
-                                {/*                </Form.Item>*/}
-                                {/*            ))}*/}
-                                {/*            <Form.Item>*/}
-                                {/*                <Button*/}
-                                {/*                    type="dashed"*/}
-                                {/*                    onClick={() => add()}*/}
-                                {/*                    style={{ width: '60%' }}*/}
-                                {/*                    icon={<PlusOutlined />}*/}
-                                {/*                >*/}
-                                {/*                    Add field*/}
-                                {/*                </Button>*/}
-                                {/*                <Form.ErrorList errors={errors} />*/}
-                                {/*            </Form.Item>*/}
-                                {/*        </>*/}
-                                {/*    )}*/}
-                                {/*</Form.List>*/}
                                 <Form.Item label="Dragger">
                                     <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
                                         <Dragger {...props}>
