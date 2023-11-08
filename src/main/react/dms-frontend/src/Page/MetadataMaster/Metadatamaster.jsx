@@ -1,7 +1,6 @@
 import React, {Component, useState} from 'react';
-import {Button, Form, Input, Modal, Skeleton, Space, Table, Select } from 'antd';
+import {Button, Form, Input, Modal, Skeleton, Space, Table } from 'antd';
 import LayoutMain from "../../Layout/Layout.jsx";
-import {InboxOutlined, MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
 import axios from "axios";
 const columns = [
     {
@@ -35,8 +34,8 @@ let data = [
     },
     {
         key: '2',
-        metadata_key: 'Urgentcy',
-        description: "File Urgentcy",
+        metadata_key: 'Urgently',
+        description: "File Urgently",
     },
     {
         key: '3',
