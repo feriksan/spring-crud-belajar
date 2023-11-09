@@ -59,11 +59,10 @@ public class FileDataController {
 
     @PostMapping("create_new_file")
     public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload) throws Exception {
-
-        String encrypt = encrypterService.base64Encoding(file, subfolder);
-        String fileName = fileStorageService.storeFile(file, subfolder);
         String username = getUsername();
-
+        String userSubfolder = username + "/" + subfolder;
+        String encrypt = encrypterService.base64Encoding(file, subfolder);
+        String fileName = fileStorageService.storeFile(file, userSubfolder);
         MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
 
         fileDataService.createNewFile(username,fileName,metadataPayload1, subfolder);

@@ -71,6 +71,18 @@ public class FileStorageService {
         }
         return fileEncrypt.resolve(subfolder);
     }
+
+    public Path createSubfolder(String subfolder) {
+        File newfolder = new File(fileUpload.toString() + "/" + subfolder);
+        if (!newfolder.exists()) {
+            if (newfolder.mkdir()) {
+                System.out.println("Directory is created!");
+            } else {
+                System.out.println("Failed to create directory!");
+            }
+        }
+        return fileEncrypt.resolve(subfolder);
+    }
     
     public String storeFile(MultipartFile file, String subfolder){
         String fileName;
@@ -92,9 +104,10 @@ public class FileStorageService {
         }
     }
 
-    public Resource loadFileAsResource(String fileName){
+    public Resource loadFileAsResource(String fileName, String subfolder){
         try{
-            Path filePath = this.fileUpload.resolve(fileName).normalize();
+            Path newDir = this.fileUpload.resolve(subfolder);
+            Path filePath = newDir.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
             if(resource.exists()) {
                 return resource;

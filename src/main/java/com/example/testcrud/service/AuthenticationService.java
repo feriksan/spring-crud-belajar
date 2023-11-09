@@ -21,6 +21,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final FileStorageService storageService;
     
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -29,6 +30,7 @@ public class AuthenticationService {
                 .role(request.getRole())
                 .build();
         repository.save(user);
+        storageService.createSubfolder(request.getUsername());
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
