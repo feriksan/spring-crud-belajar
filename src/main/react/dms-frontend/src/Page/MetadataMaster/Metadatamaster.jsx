@@ -2,6 +2,7 @@ import React, {Component, useState} from 'react';
 import {Button, Form, Input, Modal, Skeleton, Space, Table } from 'antd';
 import LayoutMain from "../../Layout/Layout.jsx";
 import axios from "axios";
+import API from "../../helper/API.js";
 const columns = [
     {
         title: 'Metadata Name',
@@ -43,7 +44,7 @@ let data = [
         description: "content summary",
     },
 ];
-
+const api = new API()
 class Metadatamaster extends Component{
 
     constructor(props) {
@@ -57,22 +58,30 @@ class Metadatamaster extends Component{
     }
     async getMetadata({tokenData}){
         console.log("On Load: "+ tokenData)
-        const response = await axios({
-            method: 'get',
-            url: "http://localhost:99/metadataMaster/findAll",
-            headers: {
-                "Authorization": "Bearer " + tokenData,
-            },
-        })
+        await api
+            .getMetadaList()
+            .then(response => this.renderList(response.data))
+
+        // const response = await axios({
+        //     method: 'get',
+        //     url: "http://localhost:99/metadataMaster/findAll",
+        //     headers: {
+        //         "Authorization": "Bearer " + tokenData,
+        //     },
+        // })
+    }
+
+    renderList(dataAPi){
         let keyCount = 4;
         let dataTemp = []
-        response.data.forEach(element => {
+        dataAPi.forEach(element => {
             element.key = keyCount
             dataTemp.push(element)
             keyCount++
         })
         data = dataTemp
         console.log(data)
+        console.log("METADATA MASUK")
         this.setState({loading:false})
     }
 
@@ -90,13 +99,13 @@ class Metadatamaster extends Component{
         const {loading} = this.state;
         if(loading){
             return(
-                <LayoutMain>
+                <LayoutMain page={'9'}>
                     <Skeleton active />
                 </LayoutMain>
                 )
         }
         return (
-            <LayoutMain>
+            <LayoutMain page={'9'}>
                 <ModalHandler token={this.state.token}/>
                 <Table columns={columns} dataSource={data} />
             </LayoutMain>
@@ -124,15 +133,18 @@ function ModalHandler({token}){
         addMetadata(data)
     };
     const addMetadata = async(data) => {
-        const response = await axios({
-            method: 'post',
-            url: "http://localhost:99/metadataMaster/create",
-            data:data,
-            headers: {
-                "Authorization": "Bearer " + token,
-            },
-        })
-        console.log(response)
+        api
+            .addMetada(data)
+            .then(response => console.log(response))
+        // const response = await axios({
+        //     method: 'post',
+        //     url: "http://localhost:99/metadataMaster/create",
+        //     data:data,
+        //     headers: {
+        //         "Authorization": "Bearer " + token,
+        //     },
+        // })
+        // console.log(response)
     }
 
     return(

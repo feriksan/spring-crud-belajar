@@ -5,7 +5,8 @@ export default class API{
     constructor() {
         this.api_token = null;
         this.client = null;
-        this.api_url = "http://139.59.81.202:99"
+        this.api_url_production = "http://139.59.81.202:99"
+        this.api_url_development = "http://localhost:99"
     }
 
     init = () => {
@@ -20,7 +21,7 @@ export default class API{
         }
 
         this.client = axios.create({
-            baseURL: this.api_url,
+            baseURL: this.api_url_production,
             timeout: 31000,
             headers: headers
         })

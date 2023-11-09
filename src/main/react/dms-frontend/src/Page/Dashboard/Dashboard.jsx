@@ -359,7 +359,7 @@ function ContentDashboard(fileArray){
 function DashboardItem({children}){
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sidebar />
+            <Sidebar selectedKey={'1'} />
             <Layout>
                 <HeaderHome />
                 <Content

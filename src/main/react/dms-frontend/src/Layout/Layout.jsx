@@ -4,10 +4,10 @@ import Sidebar from "../component/Navigation/Sidebar.jsx";
 import HeaderHome from "../component/Navigation/Header.jsx";
 import React from "react";
 
-function LayoutMain({children}){
+function LayoutMain({children, page}){
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sidebar />
+            <Sidebar selectedKey={page} />
             <Layout>
                 <HeaderHome />
                 <Content
