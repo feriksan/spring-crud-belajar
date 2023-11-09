@@ -25,13 +25,9 @@ import CardItem from '../../component/CardItem'
 import DrawerContent from '../../component/DrawerContent'
 import Login from "../../Page/Auth/Login.jsx";
 
-import axios from 'axios';
-
+import API from "../../helper/API.js";
 const onSearch = (value, _e, info) => console.log(info?.source, value);
-let tokenAPI = ""
-const urlGetFile = "http://localhost:99/api/v1/filedata/get_file_by_user";
-const urlNewFile = "http://localhost:99/api/v1/filedata/create_new_file";
-
+const api = new API()
 class DashboardComponent extends Component{
     constructor(props) {
         super(props);
@@ -40,21 +36,20 @@ class DashboardComponent extends Component{
             error:true,
             loading:true,
             isLogin:false,
-            token:null,
+            dataApis:null
         };
     }
 
     async getFiles(){
         console.log("begin get file")
-        const response = await axios({
-            method: 'get',
-            url: urlGetFile,
-            headers: {
-                "Authorization": "Bearer " + tokenAPI,
-            },
-        })
-        const dataList = [];
-        response.data.forEach(element => {
+        await api
+            .getFileList()
+            .then((response) => this.renderList(response.data))
+    }
+
+    renderList = (data) =>{
+        let dataList = []
+        data.forEach(element => {
             const metadataList = [];
             const fileList = [];
             element.fileHistories.forEach(file => {
@@ -69,11 +64,12 @@ class DashboardComponent extends Component{
                 }
                 fileList.push(files)
             })
-            var dataCard = {
+            const dataCard = {
                 "owner": element.fileHistories[0].owner,
                 "data": fileList
-            }
+            };
             dataList.push(dataCard)
+            console.log(dataCard)
         })
         this.setState({fileArray:dataList})
         this.setState({loading:false})
@@ -84,23 +80,15 @@ class DashboardComponent extends Component{
             isLogin:true,
             token:token
         })
-        tokenAPI = token
-        console.log("Mausk Login")
-        console.log(token)
         localStorage.setItem('isLogin', "login");
-        localStorage.setItem('token', token);
     }
-
 
     componentDidMount() {
         console.log("MAsuk")
         const login = localStorage.getItem('isLogin');
-        const token = localStorage.getItem('token');
-        tokenAPI = token
         if(login === "login"){
             this.setState({
                 isLogin:true,
-                token:token
             })
         }
     }
@@ -137,48 +125,52 @@ function ContentDashboard(fileArray){
     const [drawerData, setDrawerData] = useState();
     const [progress, setProgress] = useState(0);
     const [files, setFiles] = useState();
-    const [metadata, setMetadata] = useState([]);
+    let [metadata, setMetadata] = useState([]);
 
     const formHandler = (data) =>{
-        console.log(data)
         const formData = new FormData();
-        const metadata = {
-            metadata: [
-                {
-                    metadata_key: "JENIS_DOKUMEN",
-                    metadata_value: "ms.word"
-                }
-            ]
-        };
+        const metadataJson = {
+            metadata:[]
+        }
+        metadata.map(element =>{
+            let json = {
+                metadata_key: element,
+                metadata_value: data[element]
+            }
+            metadataJson.metadata.push(json)
+        })
         const subfolder = "test3";
         formData.append("file", files);
-        formData.append("metadata", JSON.stringify(metadata));
+        formData.append("metadata", JSON.stringify(metadataJson));
         formData.append("subfolder", subfolder);
-        axios({
-            method: 'post',
-            url: urlNewFile,
-            data: formData,
-            headers: {
-                "Authorization": "Bearer " + tokenAPI,
-            },
-            onUploadProgress: event => {
-                const percent = Math.floor((event.loaded / event.total) * 100);
-                setProgress(percent);
-                if (percent === 100) {
-                    setTimeout(() => setProgress(0), 1000);
-                }
-                // onProgress({percent: (event.loaded / event.total) * 100});
-            }
-        })
-            .then(function (response) {
-                // onSuccess("Ok");
-                console.log(response);
-            })
-            .catch(function (response) {
-                const error = new Error("Some error");
-                // onError({error});
-                console.log(response);
-            });
+        api
+            .addFile(formData)
+            .then(response => console.log(response.data))
+        // axios({
+        //     method: 'post',
+        //     url: urlNewFile,
+        //     data: formData,
+        //     headers: {
+        //         "Authorization": "Bearer " + tokenAPI,
+        //     },
+        //     onUploadProgress: event => {
+        //         const percent = Math.floor((event.loaded / event.total) * 100);
+        //         setProgress(percent);
+        //         if (percent === 100) {
+        //             setTimeout(() => setProgress(0), 1000);
+        //         }
+        //         // onProgress({percent: (event.loaded / event.total) * 100});
+        //     }
+        // })
+        //     .then(function (response) {
+        //         // onSuccess("Ok");
+        //         console.log(response);
+        //     })
+        //     .catch(function (response) {
+        //         const error = new Error("Some error");
+        //         // onError({error});
+        //         console.log(response);
+        //     });
     }
 
     const props = {
@@ -186,8 +178,6 @@ function ContentDashboard(fileArray){
         multiple: true,
         customRequest(info) {
             const {
-                // onSuccess,
-                // onError,
                 file,
                 onProgress
             } = info;
@@ -298,7 +288,8 @@ function ContentDashboard(fileArray){
                                 onFinish={onFinish}
                             >
                                 <Form.Item
-                                    label="Pilih Metadata Master">
+                                    label="Pilih Metadata Master"
+                                    name="List Metadata">
                                     <Space
                                         style={{
                                             width: '100%',

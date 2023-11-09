@@ -2,7 +2,8 @@ import React, {Component, useState} from 'react';
 import {LockOutlined, UserOutlined} from '@ant-design/icons';
 import {Button, Card, Checkbox, Col, Form, Input, Row, Radio } from 'antd';
 import './auth.css'
-import axios from "axios";
+import API from '../../helper/API.js'
+import Cookie from '../../helper/Cookie.js'
 
 class Login extends Component{
     constructor(props) {
@@ -199,15 +200,33 @@ function AuthHandler({loginHandler}){
 
 async function AuthAPI(data, loginHandler, type){
     console.log(data)
+    const api = new API()
+    const cookie = new Cookie()
+    if(type === "login"){
+        api
+            .login(data)
+            .then((response) => {
+                loginHandler(response.data.token)
+                cookie.setCookie("api_token", response.data.token, 1)
+        })
+    }else{
+        api
+            .register(data)
+            .then((response) => {
+                loginHandler(response.data.token)
+                cookie.setCookie("api_token", response.data.token, 1)
+        })
+    }
+
     // loginHandler("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTQxMzE0NSwiZXhwIjoxNzAwODUzMTQ1fQ.OxFuzh9ZZ_uprpCRKqZ7-9Ypw9rQcLTNcWa0RokGtJw")
-    const urlLogin = "http://localhost:99/api/auth/"+type;
-    const response = await axios({
-        method: 'post',
-        url: urlLogin,
-        data: data,
-    }).then(response => {
-        loginHandler(response.data.token)
-    })
+    // const urlLogin = "http://localhost:99/api/auth/"+type;
+    // const response = await axios({
+    //     method: 'post',
+    //     url: urlLogin,
+    //     data: data,
+    // }).then(response => {
+    //     loginHandler(response.data.token)
+    // })
 }
 
 export default Login;
