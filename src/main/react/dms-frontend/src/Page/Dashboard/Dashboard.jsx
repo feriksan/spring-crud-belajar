@@ -142,6 +142,7 @@ function ContentDashboard(fileArray){
         })
         const subfolder = "test3";
         formData.append("file", files);
+        formData.append("fileSize", files.size)
         formData.append("metadata", JSON.stringify(metadataJson));
         formData.append("subfolder", subfolder);
         api

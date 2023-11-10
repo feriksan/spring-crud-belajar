@@ -21,6 +21,7 @@ public class FileEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String created_by;
+    private int fileSize;
     private String subfolder;
     private Timestamp date_created;
     private Timestamp date_modified;
