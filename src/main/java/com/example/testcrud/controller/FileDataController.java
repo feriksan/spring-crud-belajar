@@ -58,7 +58,7 @@ public class FileDataController {
     }
 
     @PostMapping("create_new_file")
-    public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload, @RequestParam("fileSize") int fileSize) throws Exception {
+    public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload, @RequestParam("fileSize") int fileSize, @RequestParam("fileSizeUnit") String fileSizeUnit) throws Exception {
         String username = getUser().getUsername();
         String role = getUser().getRole();
         String userSubfolder = role + "/" + username + "/" + subfolder;
@@ -66,7 +66,7 @@ public class FileDataController {
         String fileName = fileStorageService.storeFile(file, userSubfolder);
         MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
 
-        fileDataService.createNewFile(username,fileName,metadataPayload1, subfolder, fileSize);
+        fileDataService.createNewFile(username,fileName,metadataPayload1, subfolder, fileSize, fileSizeUnit);
         return ResponseEntity.ok("sukses");
     }
 
