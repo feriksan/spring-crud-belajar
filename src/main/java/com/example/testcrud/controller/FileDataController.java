@@ -41,7 +41,7 @@ public class FileDataController {
 
     @GetMapping("/get_file_by_user")
     public ResponseEntity<List<FileEntity>> getfileByUser() throws Exception {
-        String username = getUsername();
+        String username = getUser().getUsername();
         if(username==null){
             return ResponseEntity.status(403).build();
         }
@@ -50,7 +50,7 @@ public class FileDataController {
 
     @GetMapping("/get_file_by_month")
     public ResponseEntity<List<Object>> getFileByUserGroupByMonth() throws Exception{
-        String username = getUsername();
+        String username = getUser().getUsername();
         if(username==null){
             return ResponseEntity.status(403).build();
         }
@@ -59,8 +59,9 @@ public class FileDataController {
 
     @PostMapping("create_new_file")
     public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload) throws Exception {
-        String username = getUsername();
-        String userSubfolder = username + "/" + subfolder;
+        String username = getUser().getUsername();
+        String role = getUser().getRole();
+        String userSubfolder = role + "/" + username + "/" + subfolder;
         String encrypt = encrypterService.base64Encoding(file, subfolder);
         String fileName = fileStorageService.storeFile(file, userSubfolder);
         MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
@@ -71,7 +72,7 @@ public class FileDataController {
 
     @PutMapping("edit_metadata_file/{file_id}")
     public ResponseEntity<String> editMetadataFile(@PathVariable("file_id") Integer fileId,@RequestBody MetadataPayload payload) throws Exception {
-        fileDataService.editMetadata(getUsername(),fileId,payload);
+        fileDataService.editMetadata(getUser().getUsername(),fileId,payload);
         return ResponseEntity.ok("sukses");
     }
 
@@ -118,12 +119,12 @@ public class FileDataController {
         return storeFile;
     }
 
-    public String getUsername() throws Exception {
+    public User getUser() throws Exception {
         if(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()){
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if (principal instanceof User) {
-                String username = ((User)principal).getUsername();
-                return username;
+//                String username = ((User)principal).getUsername();
+                return ((User)principal);
             }else{
                 throw new Exception("principal is not instance of User");
             }

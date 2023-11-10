@@ -50,7 +50,7 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/uploadFile/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/uploadFile/**").hasAnyAuthority("ADMIN", "USER", "ROLE_ADMIN", "ROLE_USER")
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .requestMatchers("/**").permitAll()

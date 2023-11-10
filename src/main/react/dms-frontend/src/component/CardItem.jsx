@@ -19,7 +19,7 @@ const CardItem = ({triggerDrawer, data}) =>{
           >
             <Meta title={data.filename} description={data.fileSize} />
             <br />
-            <Button type="primary" onClick={ () => openDrawer(data.metadata) }>
+            <Button type="primary" onClick={ () => openDrawer(data) }>
               Detail
             </Button>
           </Card>

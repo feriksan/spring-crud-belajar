@@ -56,8 +56,10 @@ class DashboardComponent extends Component{
                 file.fileMetadata.forEach(metadata => {
                     metadataList.push(metadata)
                 })
+                console.log(file)
                 let files = {
                     "filename": file.filePath,
+                    "subfolder":element.subfolder,
                     "fileSize": "10Gb",
                     "dateCreated": file.date_created,
                     "metadata": metadataList
@@ -69,7 +71,6 @@ class DashboardComponent extends Component{
                 "data": fileList
             };
             dataList.push(dataCard)
-            console.log(dataCard)
         })
         this.setState({fileArray:dataList})
         this.setState({loading:false})
@@ -216,6 +217,7 @@ function ContentDashboard(fileArray){
         // ];
         const cardItemNotGroupItem = [
             element.data.map(cardData => {
+                console.log(cardData)
                 return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
             })
         ]

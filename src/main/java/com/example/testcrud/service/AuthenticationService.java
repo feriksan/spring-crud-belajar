@@ -30,7 +30,7 @@ public class AuthenticationService {
                 .role(request.getRole())
                 .build();
         repository.save(user);
-        storageService.createSubfolder(request.getUsername());
+        storageService.createSubfolder(request.getRole() + "/" + request.getUsername());
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
