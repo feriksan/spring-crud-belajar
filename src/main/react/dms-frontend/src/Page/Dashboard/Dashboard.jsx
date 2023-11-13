@@ -43,17 +43,23 @@ class DashboardComponent extends Component{
 
     async getFiles(){
         console.log("begin get file")
+        let listFile;
+        let listFolder;
         await api
             .getFileList()
-            .then((response) => this.renderList(response.data))
+            .then((response) => listFile = response.data)
+        console.log("Begin get folder")
+        await api
+            .getDir()
+            .then((response) => listFolder = response.data)
+        this.renderList(listFile, listFolder)
     }
 
-    renderList = (data) =>{
-        console.log(data)
-        const unique = [...new Set(data.map(item => item.subfolder))];
-        this.setState({folderArray:unique})
+    renderList = (dataFile, dataFolder) =>{
+        // const unique = [...new Set(data.map(item => item.subfolder))];
+        // this.setState({folderArray:unique})
         let dataList = []
-        data.forEach(element => {
+        dataFile.forEach(element => {
             const metadataList = [];
             const fileList = [];
             element.fileHistories.forEach(file => {
@@ -76,9 +82,15 @@ class DashboardComponent extends Component{
             };
             dataList.push(dataCard)
         })
-        this.setState({fileArray:dataList})
+        this.setState(
+            {
+                fileArray:dataList,
+                folderArray:dataFolder
+            }
+        )
         this.setState({loading:false})
     }
+
 
     handleLogin = (token) =>{
         this.setState({
@@ -102,8 +114,7 @@ class DashboardComponent extends Component{
     }
 
     render() {
-        const {isLogin, loading, fileArray} = this.state;
-
+        const {isLogin, loading, fileArray, folderArray} = this.state;
         if (!isLogin) {
             return <Login loginHandler={this.handleLogin}></Login>;
         }
@@ -115,12 +126,13 @@ class DashboardComponent extends Component{
             )
         }
         return <DashboardItem>
-            <ContentDashboard fileArray={fileArray}/>
+            <ContentDashboard fileArray={fileArray} folderArray={folderArray}/>
         </DashboardItem>
     }
 }
 
 function ContentDashboard(fileArray){
+    console.log(fileArray)
     const {
         token: {colorBgContainer},
     } = theme.useToken();
@@ -177,8 +189,10 @@ function ContentDashboard(fileArray){
         console.log('Received values of form: ', values);
     };
     var itemsCollaps = [];
+    var itemsCollapsFolder = [];
     var count = 1;
     let cardItemNotGroup = [];
+    let cardItemFolder = [];
     fileArray.fileArray.forEach(element => {
         const cardItemNotGroupItem = [
             element.data.map(cardData => {
@@ -188,17 +202,33 @@ function ContentDashboard(fileArray){
         cardItemNotGroup.push(cardItemNotGroupItem)
         count++
     });
+    console.log(fileArray.folderArray)
+    fileArray.folderArray.forEach(element => {
+        cardItemFolder.push(<CardItem triggerDrawer={drawerOpen} data={element} id={count}/>)
+        count++
+    });
 
     const itemObject = {
         key: count,
-        label: "Data",
+        label: "File",
         children: [
             <Row>
                 {cardItemNotGroup}
             </Row>
         ],
     };
+
+    const itemObjectFolder = {
+        key: count,
+        label: "Folder",
+        children: [
+            <Row>
+                {cardItemFolder}
+            </Row>
+        ],
+    };
     itemsCollaps.push(itemObject)
+    itemsCollapsFolder.push(itemObjectFolder)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const showModal = () => {
         setIsModalOpen(true);
@@ -262,9 +292,18 @@ function ContentDashboard(fileArray){
             >
                 <Row gutter={16}>
                     <Col className="gutter-row" span={19}>
-                        <Button type="primary" onClick={showModal}>
-                            New File
-                        </Button>
+                        <Row gutter={16}>
+                            <Col>
+                                <Button type="primary" onClick={showModal}>
+                                    New File
+                                </Button>
+                            </Col>
+                            <Col>
+                                <Button type="primary" onClick={showModal}>
+                                    New Directory
+                                </Button>
+                            </Col>
+                        </Row>
                         <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
                             <Form
                                 form={form}
@@ -306,20 +345,6 @@ function ContentDashboard(fileArray){
                                         </Upload>
                                     </Form.Item>
                                 </Form.Item>
-                                {/*<Form.Item label="Dragger">*/}
-                                {/*    <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>*/}
-                                {/*        <Dragger {...props}>*/}
-                                {/*            <p className="ant-upload-drag-icon">*/}
-                                {/*                <InboxOutlined />*/}
-                                {/*            </p>*/}
-                                {/*            <p className="ant-upload-text">Click or drag file to this area to upload</p>*/}
-                                {/*            <p className="ant-upload-hint">*/}
-                                {/*                Support for a single or bulk upload. Strictly prohibited from uploading company data or other*/}
-                                {/*                banned files.*/}
-                                {/*            </p>*/}
-                                {/*        </Dragger>*/}
-                                {/*    </Form.Item>*/}
-                                {/*</Form.Item>*/}
                                 <Button type="primary" htmlType="submit" loading={uploading} disabled={fileList.length === 0}>
                                     {uploading ? 'Uploading' : 'Start Upload'}
                                 </Button>
@@ -337,6 +362,7 @@ function ContentDashboard(fileArray){
                     </Col>
                 </Row>
                 <br />
+                <Collapse defaultActiveKey={['1']} ghost items={itemsCollapsFolder} />
                 <Collapse defaultActiveKey={['1']} ghost items={itemsCollaps} />
             </div>
             <Drawer title="File Detail" placement="right" onClose={onClose} open={prevOpen}>

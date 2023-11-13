@@ -27,7 +27,12 @@ public class FileEntity {
     private Timestamp date_created;
     private Timestamp date_modified;
 
-    @OneToMany(mappedBy = "file")
+    @OneToMany(
+            mappedBy = "file",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<FileHistory> fileHistories;
 
     public FileEntity(Integer fileId){

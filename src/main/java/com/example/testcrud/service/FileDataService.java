@@ -10,8 +10,10 @@ import com.example.testcrud.repository.FileRepository;
 import com.example.testcrud.repository.MetadataRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -22,6 +24,9 @@ public class FileDataService {
     private final FileRepository fileRepository;
     private final FileHistoryRepo fileHistoryRepo;
     private final MetadataRepository metadataRepository;
+
+    @Autowired
+    FileStorageService fileStorageService;
 
     public List<FileEntity> getFileByUser(String username){
         return fileRepository.findByCreated(username);
@@ -82,6 +87,11 @@ public class FileDataService {
         metadataRepository.saveAll(metadata);
     }
 
+    public void deleteFile(String filename, String subfolder, Integer fileId) throws IOException {
+        fileRepository.deleteById(fileId);
+        fileStorageService.deleteFileAsResource(filename, subfolder);
+    }
+
     public void editMetadata(String username,Integer fileId, MetadataPayload payload) {
         FileHistory fileHistory = fileHistoryRepo.findFirstByFileIdOrderByIdDesc(fileId).orElseThrow();
         //duplicate fileHistory
@@ -104,6 +114,5 @@ public class FileDataService {
             metadatum.setFileHistory(fileHistory1);
         }
         metadataRepository.saveAll(metadata);
-
     }
 }

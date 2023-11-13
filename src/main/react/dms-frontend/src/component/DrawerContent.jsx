@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Card, Space, Button, Row, Col, Timeline, Collapse, Tag, Modal, Image } from 'antd';
+import { Card, Space, Button, Row, Col, Timeline, Collapse, Tag, Modal, Image, Popconfirm } from 'antd';
 import {
     FileOutlined,
     DownloadOutlined,
@@ -7,7 +7,6 @@ import {
     ShareAltOutlined,
     DeleteOutlined
 } from '@ant-design/icons';
-import CardItem from "./CardItem.jsx";
 import API from '../helper/API.js'
 const api = new API();
 
@@ -16,9 +15,16 @@ const DrawerContent = ({drawerData}) =>{
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [imgSrc, setImgSrc] = useState()
     const showModal = () => {
+        console.log(drawerData)
         setIsModalOpen(true);
         downloadFile(drawerData.subfolder + "/" + drawerData.filename)
     };
+    const confirm = () =>
+        new Promise((resolve) => {
+            setTimeout(() => resolve(null), 3000);
+            deleteFile(drawerData.subfolder + "/" + drawerData.filename + "/" + drawerData.id)
+        });
+
     const handleOk = () => {
         setIsModalOpen(false);
     };
@@ -70,6 +76,15 @@ const DrawerContent = ({drawerData}) =>{
             )
         console.log(filePath)
     }
+
+    const deleteFile = async(filePath) =>{
+        api
+            .delete(filePath)
+            .then(
+                response => fetchDownload(response)
+            )
+        console.log(filePath)
+    }
     const fetchDownload = (response) =>{
         console.log(response.data)
         // console.log(URL.createObjectURL(response.data))
@@ -109,7 +124,16 @@ const DrawerContent = ({drawerData}) =>{
                 <Col span={6}><Button type="primary" icon={<DownloadOutlined />} /></Col>
                 <Col span={6}><Button onClick={showModal} type="primary" icon={<EyeOutlined />} /></Col>
                 <Col span={6}><Button type="primary" icon={<ShareAltOutlined />} /></Col>
-                <Col span={6}><Button type="primary" icon={<DeleteOutlined />} /></Col>
+                <Col span={6}>
+                    <Popconfirm
+                        title="Title"
+                        description="Open Popconfirm with Promise"
+                        onConfirm={confirm}
+                        onOpenChange={() => console.log('open change')}
+                    >
+                        <Button type="primary" icon={<DeleteOutlined />} />
+                    </Popconfirm>
+                    </Col>
             </Row>
             <br />
             <Card
