@@ -81,7 +81,7 @@ public class FileDataController {
         String fileName = fileStorageService.storeFile(file, userSubfolder);
         MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
 
-        fileDataService.createNewFile(username,fileName,metadataPayload1, subfolder, fileSize, fileSizeUnit);
+        fileDataService.createNewFile(username,fileName,metadataPayload1, userSubfolder, fileSize, fileSizeUnit);
         return ResponseEntity.ok("sukses");
     }
 
@@ -117,6 +117,21 @@ public class FileDataController {
     @GetMapping("get_root_folder")
     public ResponseEntity<List<Folder>> getRootFolder() throws Exception {
         return new ResponseEntity<>(folderRepo.findByOwner(getUser().getUsername()), HttpStatus.OK);
+    }
+
+    @GetMapping("get_file_and_folder/{level:.+}")
+    public ResponseEntity<Map<String, Object>> getFileAndFolder(@PathVariable int level) throws Exception {
+        Map<String, Object> fileFolder = new HashMap<>();
+        List<FileEntity> getFile = fileDataService.getFileByUserandLevel(getUser().getUsername(), level);
+        if(level > 1){
+            List<SubFolderEntity> getFolder = subFolderRepo.findByLevelFolder(level);
+            fileFolder.put("Folder", getFolder);
+        }else{
+            List<Folder> getFolder = folderRepo.findByOwner(getUser().getUsername());
+            fileFolder.put("Folder", getFolder);
+        }
+        fileFolder.put("File", getFile);
+        return new ResponseEntity<>(fileFolder, HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteFile/{subfolder:.+}/{fileName:.+}/{fileId:.+}")

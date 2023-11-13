@@ -26,6 +26,7 @@ import DrawerContent from '../../component/DrawerContent'
 import Login from "../../Page/Auth/Login.jsx";
 
 import API from "../../helper/API.js";
+import CardItemFolder from "../../component/CardItemFolder.jsx";
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 const api = new API()
 class DashboardComponent extends Component{
@@ -204,7 +205,7 @@ function ContentDashboard(fileArray){
     });
     console.log(fileArray.folderArray)
     fileArray.folderArray.forEach(element => {
-        cardItemFolder.push(<CardItem triggerDrawer={drawerOpen} data={element} id={count}/>)
+        cardItemFolder.push(<CardItemFolder triggerDrawer={drawerOpen} data={element} id={count}/>)
         count++
     });
 

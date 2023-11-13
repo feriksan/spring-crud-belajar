@@ -31,6 +31,9 @@ public class FileDataService {
     public List<FileEntity> getFileByUser(String username){
         return fileRepository.findByCreated(username);
     }
+    public List<FileEntity> getFileByUserandLevel(String username, int level){
+        return fileRepository.findByCreatedAndLevel(username, level);
+    }
 
     public List<Object> getFileByUserGroupByDate(String username){
         List<Object> allFiles = new ArrayList<>();
