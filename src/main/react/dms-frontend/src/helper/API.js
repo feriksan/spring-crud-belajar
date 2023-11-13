@@ -5,8 +5,7 @@ export default class API{
     constructor() {
         this.api_token = null;
         this.client = null;
-        this.api_url_production = "http://139.59.81.202:99"
-        this.api_url_development = "http://localhost:99"
+        this.api_url_production = "http://localhost:99"
     }
 
     init = () => {
@@ -23,7 +22,28 @@ export default class API{
         this.client = axios.create({
             baseURL: this.api_url_production,
             timeout: 31000,
-            headers: headers
+            headers: headers,
+        })
+
+        return this.client
+    }
+
+    initBlob = () => {
+        var cookie = new Cookie()
+        this.api_token = cookie.getCookie("api_token")
+        let headers = {
+            Accept: "application/json"
+        }
+
+        if(this.api_token){
+            headers.Authorization = `Bearer ${this.api_token}`
+        }
+
+        this.client = axios.create({
+            baseURL: this.api_url_production,
+            timeout: 31000,
+            headers: headers,
+            responseType: "blob"
         })
 
         return this.client
@@ -51,5 +71,10 @@ export default class API{
 
     register = (params) => {
         return this.init().post("/api/auth/register", params)
+    }
+
+    download = (params) => {
+        console.log(params)
+        return this.initBlob().get("/uploadFile/downloadFile/"+params)
     }
 }

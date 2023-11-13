@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Card, Space, Button, Row, Col, Timeline, Collapse, Tag } from 'antd';
+import { Card, Space, Button, Row, Col, Timeline, Collapse, Tag, Modal, Image } from 'antd';
 import {
     FileOutlined,
     DownloadOutlined,
@@ -8,10 +8,24 @@ import {
     DeleteOutlined
 } from '@ant-design/icons';
 import CardItem from "./CardItem.jsx";
-
+import API from '../helper/API.js'
+const api = new API();
 
 const DrawerContent = ({drawerData}) =>{
-    console.log(drawerData)
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [imgSrc, setImgSrc] = useState()
+    const showModal = () => {
+        setIsModalOpen(true);
+        downloadFile(drawerData.subfolder + "/" + drawerData.filename)
+    };
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+    // console.log("Drawer Open" + drawerData)
     const onChange = (key) => {
         console.log(key);
       };
@@ -41,13 +55,36 @@ const DrawerContent = ({drawerData}) =>{
     const kartuItem = [
         <Row gutter={16}>
             {
-                drawerData.map(metadataText => {
+                drawerData.metadata.map(metadataText => {
                     return <div><Tag>{metadataText.metadata_value}</Tag></div>
                 })
             }
         </Row>
     ];
-    console.log(kartuItem)
+
+    const downloadFile = async(filePath) =>{
+        await api
+            .download(filePath)
+            .then(
+                response => fetchDownload(response)
+            )
+        console.log(filePath)
+    }
+    const fetchDownload = (response) =>{
+        console.log(response.data)
+        // console.log(URL.createObjectURL(response.data))
+        setImgSrc(URL.createObjectURL(response.data))
+        // const href = URL.createObjectURL(response.data);
+        // const link = document.createElement('a');
+        // link.href = href;
+        // // link.setAttribute('download', 'file.jpeg'); //or any other extension
+        // document.body.appendChild(link);
+        // link.click();
+
+        // clean up "a" element & remove ObjectURL
+        // document.body.removeChild(link);
+        // URL.revokeObjectURL(href);
+    }
     return (
         <Space align="center" direction="vertical" size="large" style={{ display: 'flex' }}>
             <Card
@@ -56,9 +93,21 @@ const DrawerContent = ({drawerData}) =>{
                 cover={<FileOutlined style={{ paddingTop: '40px', fontSize: '50px', color: '#595959' }} />}
             >
             </Card>
+            <Modal title="Show File" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <Row gutter={16}>
+                    <Col span={7}></Col>
+                    <Col span={8}>
+                        <Image
+                            width={200}
+                            src={imgSrc}
+                        />
+                    </Col>
+                    <Col span={8}></Col>
+                </Row>
+            </Modal>
             <Row gutter={16}>
                 <Col span={6}><Button type="primary" icon={<DownloadOutlined />} /></Col>
-                <Col span={6}><Button type="primary" icon={<EyeOutlined />} /></Col>
+                <Col span={6}><Button onClick={showModal} type="primary" icon={<EyeOutlined />} /></Col>
                 <Col span={6}><Button type="primary" icon={<ShareAltOutlined />} /></Col>
                 <Col span={6}><Button type="primary" icon={<DeleteOutlined />} /></Col>
             </Row>

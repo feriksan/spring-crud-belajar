@@ -11,13 +11,13 @@ import {
     theme,
     Skeleton,
     Col,
-    Row, Space, Select
+    Row, Space, Select, message
 } from 'antd';
 const {  Content, Footer } = Layout;
 const { Dragger } = Upload;
 const { Search } = Input;
 import {
-    InboxOutlined,
+    InboxOutlined, UploadOutlined,
 } from '@ant-design/icons';
 import Sidebar from '../../component/Navigation/Sidebar.jsx'
 import HeaderHome from '../../component/Navigation/Header.jsx'
@@ -33,6 +33,7 @@ class DashboardComponent extends Component{
         super(props);
         this.state = {
             fileArray: null,
+            folderArray:null,
             error:true,
             loading:true,
             isLogin:false,
@@ -48,6 +49,9 @@ class DashboardComponent extends Component{
     }
 
     renderList = (data) =>{
+        console.log(data)
+        const unique = [...new Set(data.map(item => item.subfolder))];
+        this.setState({folderArray:unique})
         let dataList = []
         data.forEach(element => {
             const metadataList = [];
@@ -57,8 +61,10 @@ class DashboardComponent extends Component{
                     metadataList.push(metadata)
                 })
                 let files = {
+                    "id":element.id,
                     "filename": file.filePath,
-                    "fileSize": "10Gb",
+                    "subfolder":element.subfolder,
+                    "fileSize": element.fileSize + element.fileSizeUnit,
                     "dateCreated": file.date_created,
                     "metadata": metadataList
                 }
@@ -69,7 +75,6 @@ class DashboardComponent extends Component{
                 "data": fileList
             };
             dataList.push(dataCard)
-            console.log(dataCard)
         })
         this.setState({fileArray:dataList})
         this.setState({loading:false})
@@ -84,7 +89,6 @@ class DashboardComponent extends Component{
     }
 
     componentDidMount() {
-        console.log("MAsuk")
         const login = localStorage.getItem('isLogin');
         if(login === "login"){
             this.setState({
@@ -94,8 +98,6 @@ class DashboardComponent extends Component{
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.log("Cek Login")
-        console.log(this.state.isLogin)
         prevState.isLogin === this.state.isLogin ? console.log('already login') : this.getFiles()
     }
 
@@ -117,21 +119,25 @@ class DashboardComponent extends Component{
         </DashboardItem>
     }
 }
+
 function ContentDashboard(fileArray){
     const {
         token: {colorBgContainer},
     } = theme.useToken();
     const [prevOpen, setPrevOpen] = useState();
     const [drawerData, setDrawerData] = useState();
-    const [progress, setProgress] = useState(0);
     const [files, setFiles] = useState();
     let [metadata, setMetadata] = useState([]);
+    const [fileList, setFileList] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [form] = Form.useForm();
 
     const formHandler = (data) =>{
         const formData = new FormData();
         const metadataJson = {
             metadata:[]
         }
+        setUploading(true);
         metadata.map(element =>{
             let json = {
                 metadata_key: element,
@@ -141,55 +147,24 @@ function ContentDashboard(fileArray){
         })
         const subfolder = "test3";
         formData.append("file", files);
+        formData.append("fileSize", files.size)
+        formData.append("fileSizeUnit", "Kb")
         formData.append("metadata", JSON.stringify(metadataJson));
         formData.append("subfolder", subfolder);
         api
             .addFile(formData)
-            .then(response => console.log(response.data))
-        // axios({
-        //     method: 'post',
-        //     url: urlNewFile,
-        //     data: formData,
-        //     headers: {
-        //         "Authorization": "Bearer " + tokenAPI,
-        //     },
-        //     onUploadProgress: event => {
-        //         const percent = Math.floor((event.loaded / event.total) * 100);
-        //         setProgress(percent);
-        //         if (percent === 100) {
-        //             setTimeout(() => setProgress(0), 1000);
-        //         }
-        //         // onProgress({percent: (event.loaded / event.total) * 100});
-        //     }
-        // })
-        //     .then(function (response) {
-        //         // onSuccess("Ok");
-        //         console.log(response);
-        //     })
-        //     .catch(function (response) {
-        //         const error = new Error("Some error");
-        //         // onError({error});
-        //         console.log(response);
-        //     });
+            .then(response => {
+                form.resetFields();
+                {handleCancel()}
+                message.success('upload successfully.')
+            })
+            .catch((e) => {
+                message.error('upload Failed.' + e)
+            })
+            .finally(() => {
+                setUploading(false);
+            })
     }
-
-    const props = {
-        name: 'file',
-        multiple: true,
-        customRequest(info) {
-            const {
-                file,
-                onProgress
-            } = info;
-            setFiles(file)
-            const percent = Math.floor((event.loaded / event.total) * 100);
-            setProgress(percent);
-            if (percent === 100) {
-                setTimeout(() => setProgress(0), 1000);
-            }
-            onProgress({percent: (event.loaded / event.total) * 100});
-        }
-    };
     const drawerOpen = (data, logic) => {
         setPrevOpen(logic)
         setDrawerData(data)
@@ -205,18 +180,9 @@ function ContentDashboard(fileArray){
     var count = 1;
     let cardItemNotGroup = [];
     fileArray.fileArray.forEach(element => {
-        // const cardItem = [
-        //     <Row gutter={16}>
-        //         {
-        //             element.data.map(cardData => {
-        //                 return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
-        //             })
-        //         }
-        //     </Row>
-        // ];
         const cardItemNotGroupItem = [
             element.data.map(cardData => {
-                return <CardItem triggerDrawer={drawerOpen} data={cardData}/>
+                return <CardItem triggerDrawer={drawerOpen} data={cardData} id={count}/>
             })
         ]
         cardItemNotGroup.push(cardItemNotGroupItem)
@@ -269,6 +235,22 @@ function ContentDashboard(fileArray){
         console.log(`selected ${value}`);
     };
 
+    const props2 = {
+        onRemove: (file) => {
+            const index = fileList.indexOf(file);
+            const newFileList = fileList.slice();
+            newFileList.splice(index, 1);
+            setFileList(newFileList);
+            setFiles(null)
+        },
+        beforeUpload: (file) => {
+            setFileList([...fileList, file]);
+            setFiles(file)
+            return false;
+        },
+        fileList,
+    };
+
     return (
         <>
             <div
@@ -283,8 +265,9 @@ function ContentDashboard(fileArray){
                         <Button type="primary" onClick={showModal}>
                             New File
                         </Button>
-                        <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                        <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
                             <Form
+                                form={form}
                                 onFinish={onFinish}
                             >
                                 <Form.Item
@@ -316,22 +299,29 @@ function ContentDashboard(fileArray){
                                         <Input placeholder={element}/>
                                     </Form.Item>
                                 })}
-                                <Form.Item label="Dragger">
-                                    <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
-                                        <Dragger {...props}>
-                                            <p className="ant-upload-drag-icon">
-                                                <InboxOutlined />
-                                            </p>
-                                            <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                                            <p className="ant-upload-hint">
-                                                Support for a single or bulk upload. Strictly prohibited from uploading company data or other
-                                                banned files.
-                                            </p>
-                                        </Dragger>
+                                <Form.Item label="Upload">
+                                    <Form.Item name="upload" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
+                                        <Upload {...props2}>
+                                            <Button icon={<UploadOutlined />}>Select File</Button>
+                                        </Upload>
                                     </Form.Item>
                                 </Form.Item>
-                                <Button type="primary" htmlType="submit">
-                                    Submit
+                                {/*<Form.Item label="Dragger">*/}
+                                {/*    <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>*/}
+                                {/*        <Dragger {...props}>*/}
+                                {/*            <p className="ant-upload-drag-icon">*/}
+                                {/*                <InboxOutlined />*/}
+                                {/*            </p>*/}
+                                {/*            <p className="ant-upload-text">Click or drag file to this area to upload</p>*/}
+                                {/*            <p className="ant-upload-hint">*/}
+                                {/*                Support for a single or bulk upload. Strictly prohibited from uploading company data or other*/}
+                                {/*                banned files.*/}
+                                {/*            </p>*/}
+                                {/*        </Dragger>*/}
+                                {/*    </Form.Item>*/}
+                                {/*</Form.Item>*/}
+                                <Button type="primary" htmlType="submit" loading={uploading} disabled={fileList.length === 0}>
+                                    {uploading ? 'Uploading' : 'Start Upload'}
                                 </Button>
                             </Form>
                         </Modal>

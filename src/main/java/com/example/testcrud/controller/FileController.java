@@ -3,10 +3,7 @@ package com.example.testcrud.controller;
 import com.example.testcrud.entity.FileEntity;
 import com.example.testcrud.entity.User;
 import com.example.testcrud.payload.UploadFileResponse;
-import com.example.testcrud.service.FileDataService;
-import com.example.testcrud.service.FileEncrypterService;
-import com.example.testcrud.service.FileStorageService;
-import com.example.testcrud.service.FileUploadService;
+import com.example.testcrud.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -37,6 +34,9 @@ public class FileController {
     @Autowired
     private FileEncrypterService encrypterService;
 
+    @Autowired
+    private FetchUserFromPayload fetchUserFromPayload;
+
     @PostMapping("/uploadSatu")
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder){
         String encrypt = encrypterService.base64Encoding(file, subfolder);
@@ -58,11 +58,12 @@ public class FileController {
 //                .collect(Collectors.toList()), HttpStatus.OK);
 //    }
 
-    @GetMapping("/downloadFile/{fileName:.+}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
+    @GetMapping("/downloadFile/{subfolder:.+}/{fileName:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, @PathVariable String subfolder, HttpServletRequest request) throws Exception {
         // Load file as Resource
         Resource resource;
-        resource = fileStorageService.loadFileAsResource(fileName);
+
+        resource = fileStorageService.loadFileAsResource(fileName, fetchUserFromPayload.getUser().getRole() + "/" + fetchUserFromPayload.getUser().getUsername() + "/" + subfolder);
 
         // Try to determine file's content type
         String contentType = null;

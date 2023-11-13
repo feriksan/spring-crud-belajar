@@ -1,6 +1,5 @@
 package com.example.testcrud.service;
 
-import com.example.testcrud.entity.FileEntity;
 import com.example.testcrud.exception.FileNotFoundException;
 import com.example.testcrud.exception.FileStorageException;
 import com.example.testcrud.properties.FileStorageProperties;
@@ -21,10 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -63,13 +58,26 @@ public class FileStorageService {
     private Path createSubfolder(String subfolder, Path fileEncrypt) {
         File newfolder = new File(fileEncrypt.toString() + "/" + subfolder);
         if (!newfolder.exists()) {
-            if (newfolder.mkdir()) {
+            if (newfolder.mkdirs()) {
                 System.out.println("Directory is created!");
             } else {
                 System.out.println("Failed to create directory!");
             }
         }
         return fileEncrypt.resolve(subfolder);
+    }
+
+    public void createSubfolder(String subfolder) {
+
+        File newfolder = new File(fileUpload.toString() + "/" + subfolder);
+
+        if (!newfolder.exists()) {
+            if (newfolder.mkdirs()) {
+                System.out.println("Directory is created!");
+            } else {
+                System.out.println("Failed to create directory!");
+            }
+        }
     }
     
     public String storeFile(MultipartFile file, String subfolder){
@@ -92,9 +100,10 @@ public class FileStorageService {
         }
     }
 
-    public Resource loadFileAsResource(String fileName){
+    public Resource loadFileAsResource(String fileName, String subfolder){
         try{
-            Path filePath = this.fileUpload.resolve(fileName).normalize();
+            Path newDir = this.fileUpload.resolve(subfolder);
+            Path filePath = newDir.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
             if(resource.exists()) {
                 return resource;
