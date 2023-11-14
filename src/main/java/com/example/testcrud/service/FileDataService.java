@@ -60,7 +60,7 @@ public class FileDataService {
     }
 
     @Transactional
-    public void createNewFile(String username, String fileName, MetadataPayload metadataPayload, String subfolder, int fileSize, String fileSizeUnit) {
+    public FileEntity createNewFile(String username, String fileName, MetadataPayload metadataPayload, String subfolder, int fileSize, String fileSizeUnit) {
         FileEntity fileEntity = new FileEntity();
         fileEntity.setId(null);
         fileEntity.setSubfolder(subfolder);
@@ -87,7 +87,9 @@ public class FileDataService {
         for (FileMetadata metadatum : metadata) {
             metadatum.setFileHistory(fileHistory1);
         }
+        FileEntity newlyAddFile = fileRepository.findById(fileEntity1.getId()).orElseThrow(null);
         metadataRepository.saveAll(metadata);
+        return newlyAddFile;
     }
 
     public void deleteFile(String filename, String subfolder, Integer fileId) throws IOException {

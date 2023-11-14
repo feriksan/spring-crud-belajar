@@ -27,6 +27,7 @@ import Login from "../../Page/Auth/Login.jsx";
 
 import API from "../../helper/API.js";
 import CardItemFolder from "../../component/CardItemFolder.jsx";
+import '../../assets/disableStyleSelection.css'
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 const api = new API()
 class DashboardComponent extends Component{
@@ -137,6 +138,8 @@ function ContentDashboard(fileArray){
     const {
         token: {colorBgContainer},
     } = theme.useToken();
+    const [folderListState, setFolderListState] = useState(fileArray.folderArray)
+    const [fileListState, setFileListState] = useState(fileArray.fileArray)
     const [prevOpen, setPrevOpen] = useState();
     const [drawerData, setDrawerData] = useState();
     const [files, setFiles] = useState();
@@ -144,6 +147,24 @@ function ContentDashboard(fileArray){
     const [fileList, setFileList] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [form] = Form.useForm();
+    const [formFolder] = Form.useForm();
+
+    const addFolder = (data) => {
+        console.log(data)
+        const folder = {
+            "folder":data.directoryName
+        }
+        api
+            .addFolder(folder)
+            .then(response => {
+                var folderListNew = []
+                folderListNew = folderListState
+                folderListNew.push(response.data)
+                setFolderListState(folderListNew)
+                formFolder.resetFields();
+                {handleFolderCancel()}
+            })
+    }
 
     const formHandler = (data) =>{
         const formData = new FormData();
@@ -167,6 +188,8 @@ function ContentDashboard(fileArray){
         api
             .addFile(formData)
             .then(response => {
+                console.log("Data masuk")
+                console.log(response.data)
                 form.resetFields();
                 {handleCancel()}
                 message.success('upload successfully.')
@@ -178,6 +201,7 @@ function ContentDashboard(fileArray){
                 setUploading(false);
             })
     }
+
     const drawerOpen = (data, logic) => {
         setPrevOpen(logic)
         setDrawerData(data)
@@ -189,12 +213,16 @@ function ContentDashboard(fileArray){
         formHandler(values)
         console.log('Received values of form: ', values);
     };
+    const onFolderInsertFinish = (value) => {
+        addFolder(value)
+        console.log('Received values of form: ', value);
+    }
     var itemsCollaps = [];
     var itemsCollapsFolder = [];
     var count = 1;
     let cardItemNotGroup = [];
     let cardItemFolder = [];
-    fileArray.fileArray.forEach(element => {
+    fileListState.forEach(element => {
         const cardItemNotGroupItem = [
             element.data.map(cardData => {
                 return <CardItem triggerDrawer={drawerOpen} data={cardData} id={count}/>
@@ -203,8 +231,7 @@ function ContentDashboard(fileArray){
         cardItemNotGroup.push(cardItemNotGroupItem)
         count++
     });
-    console.log(fileArray.folderArray)
-    fileArray.folderArray.forEach(element => {
+    folderListState.forEach(element => {
         cardItemFolder.push(<CardItemFolder triggerDrawer={drawerOpen} data={element} id={count}/>)
         count++
     });
@@ -231,14 +258,24 @@ function ContentDashboard(fileArray){
     itemsCollaps.push(itemObject)
     itemsCollapsFolder.push(itemObjectFolder)
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalFolderOpen, setIsModalFolderOpen] = useState(false);
     const showModal = () => {
         setIsModalOpen(true);
+    };
+    const showFolderModal = () => {
+        setIsModalFolderOpen(true);
     };
     const handleOk = () => {
         setIsModalOpen(false);
     };
+    const handleFolderOk = () => {
+        setIsModalFolderOpen(false);
+    };
     const handleCancel = () => {
         setIsModalOpen(false);
+    };
+    const handleFolderCancel = () => {
+        setIsModalFolderOpen(false);
     };
     const normFile = (e) => {
         console.log('Upload event:', e);
@@ -300,7 +337,7 @@ function ContentDashboard(fileArray){
                                 </Button>
                             </Col>
                             <Col>
-                                <Button type="primary" onClick={showModal}>
+                                <Button type="primary" onClick={showFolderModal}>
                                     New Directory
                                 </Button>
                             </Col>
@@ -351,6 +388,22 @@ function ContentDashboard(fileArray){
                                 </Button>
                             </Form>
                         </Modal>
+                        <Modal title="Basic Modal" open={isModalFolderOpen} onOk={handleFolderOk} onCancel={handleFolderCancel} footer={null}>
+                            <Form
+                                form={formFolder}
+                                onFinish={onFolderInsertFinish}
+                            >
+                                <Form.Item
+                                    label="Directory"
+                                    name="directoryName"
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Button type="primary" htmlType="submit" loading={uploading}>
+                                    Create Dir
+                                </Button>
+                            </Form>
+                        </Modal>
                     </Col>
                     <Col className="gutter-row" span={5}>
                         <Search
@@ -363,8 +416,8 @@ function ContentDashboard(fileArray){
                     </Col>
                 </Row>
                 <br />
-                <Collapse defaultActiveKey={['1']} ghost items={itemsCollapsFolder} />
-                <Collapse defaultActiveKey={['1']} ghost items={itemsCollaps} />
+                <Collapse defaultActiveKey={['1']} ghost items={itemsCollapsFolder} className="disable-text-selection" />
+                <Collapse defaultActiveKey={['1']} ghost items={itemsCollaps} className="disable-text-selection" />
             </div>
             <Drawer title="File Detail" placement="right" onClose={onClose} open={prevOpen}>
                 <DrawerContent drawerData={drawerData}/>

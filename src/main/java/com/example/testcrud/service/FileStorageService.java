@@ -98,6 +98,7 @@ public class FileStorageService {
         try{
             Path newDir = this.fileUpload.resolve(subfolder);
             Path filePath = newDir.resolve(fileName).normalize();
+            System.out.println(filePath);
             Resource resource = new UrlResource(filePath.toUri());
             if(resource.exists()) {
                 return resource;

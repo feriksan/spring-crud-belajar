@@ -5,24 +5,35 @@ import {
 import { Card, Col } from 'antd';
 const { Meta } = Card;
 import { Button } from 'antd';
+import '../assets/disableStyleSelection.css'
 
 const CardItem = ({triggerDrawer, data, id}) =>{
-    console.log(data)
-    function openDrawer(dataDrawer){
-      triggerDrawer(dataDrawer, true)
+    const handleClick = event =>{
+        switch (event.detail){
+            case 1:{
+                console.log("Single")
+                break
+            }
+            case 2:{
+                triggerDrawer(data, true)
+                break
+            }
+            case 3:{
+                console.log("Tripple")
+            }
+        }
     }
+
     return (
         <Col span={6} style={{padding: 10}}>
           <Card key={data.id}
+            onClick={ handleClick }
             hoverable
             style={{ width: 240 }}
             cover={<FileOutlined key={data.id} style={{ padding: '50px', fontSize: '100px', color: '#595959' }} />}
           >
             <Meta title={data.filename} description={data.fileSize} />
             <br />
-            <Button key={data.id} type="primary" onClick={ () => openDrawer(data) }>
-              Detail
-            </Button>
           </Card>
         </Col>
     )

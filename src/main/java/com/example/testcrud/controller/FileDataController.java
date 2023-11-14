@@ -73,7 +73,7 @@ public class FileDataController {
     }
 
     @PostMapping("create_new_file")
-    public ResponseEntity<String> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload, @RequestParam("fileSize") int fileSize, @RequestParam("fileSizeUnit") String fileSizeUnit) throws Exception {
+    public ResponseEntity<FileEntity> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload, @RequestParam("fileSize") int fileSize, @RequestParam("fileSizeUnit") String fileSizeUnit) throws Exception {
         String username = getUser().getUsername();
         String role = getUser().getRole();
         String userSubfolder = role + "/" + username + "/" + subfolder;
@@ -81,21 +81,21 @@ public class FileDataController {
         String fileName = fileStorageService.storeFile(file, userSubfolder);
         MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
 
-        fileDataService.createNewFile(username,fileName,metadataPayload1, userSubfolder, fileSize, fileSizeUnit);
-        return ResponseEntity.ok("sukses");
+        FileEntity fileCreated = fileDataService.createNewFile(username,fileName,metadataPayload1, userSubfolder, fileSize, fileSizeUnit);
+        return ResponseEntity.ok(fileCreated);
     }
 
     @PostMapping("create_new_dir")
-    public ResponseEntity<String> createNewDir(@RequestBody Folder folder) throws Exception {
+    public ResponseEntity<Folder> createNewDir(@RequestBody Folder folder) throws Exception {
         String username = getUser().getUsername();
         String role = getUser().getRole();
         folder.setOwner(username);
         folder.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         String userSubfolder = role + "/" + username + "/" + folder.getFolder();
         folder.setUrl(userSubfolder);
-        folderRepo.save(folder);
+        Folder createdFolder = folderRepo.save(folder);
         fileStorageService.createSubfolder(userSubfolder);
-        return new ResponseEntity<>("Berhasil", HttpStatus.CREATED);
+        return new ResponseEntity<>(createdFolder, HttpStatus.CREATED);
     }
 
     @PostMapping("create_sub_dir")

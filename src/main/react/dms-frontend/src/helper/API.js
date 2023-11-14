@@ -77,6 +77,10 @@ export default class API{
         return this.initBlob().get("/uploadFile/downloadFile/"+params)
     }
 
+    preview =(params) => {
+        return this.initBlob().get("/uploadFile/downloadFile/"+params)
+    }
+
     delete = (params) => {
         return this.init().delete("/api/v1/filedata/deleteFile/" +params)
     }
@@ -87,5 +91,9 @@ export default class API{
 
     getSubDir = (params) => {
         return this.init().get("filedata/get_folder_structure/" + params)
+    }
+
+    addFolder = (params) => {
+        return this.init().post("/api/v1/filedata/create_new_dir", params)
     }
 }

@@ -17,8 +17,11 @@ const DrawerContent = ({drawerData}) =>{
     const showModal = () => {
         console.log(drawerData)
         setIsModalOpen(true);
-        downloadFile(drawerData.subfolder + "/" + drawerData.filename)
+        previewFile(drawerData.filename + "/" + drawerData.subfolder)
     };
+    const downloadHandler =() => {
+        downloadFile(drawerData.filename + "/" + drawerData.subfolder)
+    }
     const confirm = () =>
         new Promise((resolve) => {
             setTimeout(() => resolve(null), 3000);
@@ -68,13 +71,22 @@ const DrawerContent = ({drawerData}) =>{
         </Row>
     ];
 
+    const previewFile = async(filePath) =>{
+        await api
+            .preview(filePath)
+            .then(
+                response => fetchPreview(response)
+            )
+        console.log(filePath)
+    }
+
     const downloadFile = async(filePath) =>{
+        console.log(filePath)
         await api
             .download(filePath)
             .then(
                 response => fetchDownload(response)
             )
-        console.log(filePath)
     }
 
     const deleteFile = async(filePath) =>{
@@ -85,20 +97,23 @@ const DrawerContent = ({drawerData}) =>{
             )
         console.log(filePath)
     }
-    const fetchDownload = (response) =>{
+
+    const fetchPreview = (response) =>{
         console.log(response.data)
-        // console.log(URL.createObjectURL(response.data))
         setImgSrc(URL.createObjectURL(response.data))
-        // const href = URL.createObjectURL(response.data);
-        // const link = document.createElement('a');
-        // link.href = href;
-        // // link.setAttribute('download', 'file.jpeg'); //or any other extension
-        // document.body.appendChild(link);
-        // link.click();
+    }
+    const fetchDownload = (response) =>{
+        const href = URL.createObjectURL(response.data);
+        const link = document.createElement('a');
+        link.href = href;
+        console.log(response.data)
+        link.setAttribute('download', 'file'); //or any other extension
+        document.body.appendChild(link);
+        link.click();
 
         // clean up "a" element & remove ObjectURL
-        // document.body.removeChild(link);
-        // URL.revokeObjectURL(href);
+        document.body.removeChild(link);
+        URL.revokeObjectURL(href);
     }
     return (
         <Space align="center" direction="vertical" size="large" style={{ display: 'flex' }}>
@@ -121,7 +136,7 @@ const DrawerContent = ({drawerData}) =>{
                 </Row>
             </Modal>
             <Row gutter={16}>
-                <Col span={6}><Button type="primary" icon={<DownloadOutlined />} /></Col>
+                <Col span={6}><Button onClick={downloadHandler} type="primary" icon={<DownloadOutlined />} /></Col>
                 <Col span={6}><Button onClick={showModal} type="primary" icon={<EyeOutlined />} /></Col>
                 <Col span={6}><Button type="primary" icon={<ShareAltOutlined />} /></Col>
                 <Col span={6}>
