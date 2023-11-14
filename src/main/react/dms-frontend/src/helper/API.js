@@ -96,4 +96,8 @@ export default class API{
     addFolder = (params) => {
         return this.init().post("/api/v1/filedata/create_new_dir", params)
     }
+
+    getFileAndDir = (params) =>{
+        return this.init().get("/api/v1/filedata/get_file_and_folder/" + params)
+    }
 }

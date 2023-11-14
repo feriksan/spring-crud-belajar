@@ -17,7 +17,7 @@ const {  Content, Footer } = Layout;
 const { Dragger } = Upload;
 const { Search } = Input;
 import {
-    InboxOutlined, UploadOutlined,
+    UploadOutlined,
 } from '@ant-design/icons';
 import Sidebar from '../../component/Navigation/Sidebar.jsx'
 import HeaderHome from '../../component/Navigation/Header.jsx'
@@ -39,21 +39,20 @@ class DashboardComponent extends Component{
             error:true,
             loading:true,
             isLogin:false,
-            dataApis:null
+            dataApis:null,
+            dirLevel:1
         };
     }
 
     async getFiles(){
-        console.log("begin get file")
         let listFile;
         let listFolder;
         await api
-            .getFileList()
-            .then((response) => listFile = response.data)
-        console.log("Begin get folder")
-        await api
-            .getDir()
-            .then((response) => listFolder = response.data)
+            .getFileAndDir(this.state.dirLevel)
+            .then((response) => {
+                listFile = response.data.File
+                listFolder = response.data.Folder
+            })
         this.renderList(listFile, listFolder)
     }
 

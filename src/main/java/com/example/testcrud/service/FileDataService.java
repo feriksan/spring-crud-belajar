@@ -2,9 +2,11 @@ package com.example.testcrud.service;
 
 
 import com.example.testcrud.entity.FileEntity;
+import com.example.testcrud.entity.FileFolder;
 import com.example.testcrud.entity.FileHistory;
 import com.example.testcrud.entity.FileMetadata;
 import com.example.testcrud.payload.MetadataPayload;
+import com.example.testcrud.repository.FileFolderRepo;
 import com.example.testcrud.repository.FileHistoryRepo;
 import com.example.testcrud.repository.FileRepository;
 import com.example.testcrud.repository.MetadataRepository;
@@ -24,6 +26,7 @@ public class FileDataService {
     private final FileRepository fileRepository;
     private final FileHistoryRepo fileHistoryRepo;
     private final MetadataRepository metadataRepository;
+    private final FileFolderRepo fileFolderRepo;
 
     @Autowired
     FileStorageService fileStorageService;
@@ -33,6 +36,42 @@ public class FileDataService {
     }
     public List<FileEntity> getFileByUserandLevel(String username, int level){
         return fileRepository.findByCreatedAndLevel(username, level);
+    }
+    public List<FileEntity> getFileByUserAndLevel(String username, int level, int parent){
+        return fileRepository.findByCreatedAndLevel(username, level);
+    }
+
+    public void documenTreeInsert(int parent, int child, int type){
+        if(type == 1){
+            if(parent == child){
+                FileFolder fileFolder = new FileFolder();
+                fileFolder.setParent(parent);
+                fileFolder.setFile(child);
+                fileFolder.setLevel(0);
+                fileFolderRepo.save(fileFolder);
+            }else{
+                FileFolder fileFolder = new FileFolder();
+                fileFolder.setParent(parent);
+                fileFolder.setFile(child);
+                fileFolder.setLevel(0);
+                fileFolderRepo.save(fileFolder);
+            }
+        }else{
+            if(parent == child){
+                FileFolder fileFolder = new FileFolder();
+                fileFolder.setParent(parent);
+                fileFolder.setFolder(child);
+                fileFolder.setLevel(0);
+                fileFolderRepo.save(fileFolder);
+            }else{
+                FileFolder fileFolder = new FileFolder();
+                fileFolder.setParent(parent);
+                fileFolder.setFolder(child);
+                fileFolder.setLevel(0);
+                fileFolderRepo.save(fileFolder);
+            }
+        }
+
     }
 
     public List<Object> getFileByUserGroupByDate(String username){
@@ -66,6 +105,7 @@ public class FileDataService {
         fileEntity.setSubfolder(subfolder);
         fileEntity.setFileSize(fileSize);
         fileEntity.setFileSizeUnit(fileSizeUnit);
+        fileEntity.setLevel(1);
         fileEntity.setDate_created(Timestamp.valueOf(LocalDateTime.now()));
         fileEntity.setDate_modified(Timestamp.valueOf(LocalDateTime.now()));
         fileEntity.setCreated_by(username);
@@ -78,7 +118,7 @@ public class FileDataService {
         fileHistory.setId(null);
         fileHistory.setType("CREATE");
         fileHistory.setModified_by(username);
-        fileHistory.setFilePath(fileName);
+        fileHistory.setFilePath(subfolder);
         fileHistory.setOwner(username);
         fileHistory.setDate_modified(fileEntity1.getDate_created());
         FileHistory fileHistory1 = fileHistoryRepo.saveAndFlush(fileHistory);
