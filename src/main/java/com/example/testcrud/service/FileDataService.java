@@ -1,10 +1,7 @@
 package com.example.testcrud.service;
 
 
-import com.example.testcrud.entity.FileEntity;
-import com.example.testcrud.entity.FileFolder;
-import com.example.testcrud.entity.FileHistory;
-import com.example.testcrud.entity.FileMetadata;
+import com.example.testcrud.entity.*;
 import com.example.testcrud.payload.MetadataPayload;
 import com.example.testcrud.repository.FileFolderRepo;
 import com.example.testcrud.repository.FileHistoryRepo;
@@ -41,36 +38,13 @@ public class FileDataService {
         return fileRepository.findByCreatedAndLevel(username, level);
     }
 
-    public void documenTreeInsert(int parent, int child, int type){
-        if(type == 1){
-            if(parent == child){
-                FileFolder fileFolder = new FileFolder();
-                fileFolder.setParent(parent);
-                fileFolder.setFile(child);
-                fileFolder.setLevel(0);
-                fileFolderRepo.save(fileFolder);
-            }else{
-                FileFolder fileFolder = new FileFolder();
-                fileFolder.setParent(parent);
-                fileFolder.setFile(child);
-                fileFolder.setLevel(0);
-                fileFolderRepo.save(fileFolder);
-            }
-        }else{
-            if(parent == child){
-                FileFolder fileFolder = new FileFolder();
-                fileFolder.setParent(parent);
-                fileFolder.setFolder(child);
-                fileFolder.setLevel(0);
-                fileFolderRepo.save(fileFolder);
-            }else{
-                FileFolder fileFolder = new FileFolder();
-                fileFolder.setParent(parent);
-                fileFolder.setFolder(child);
-                fileFolder.setLevel(0);
-                fileFolderRepo.save(fileFolder);
-            }
-        }
+    public void documenTreeInsert(Folder createdFolder){
+        FileFolder fileFolder = new FileFolder();
+        fileFolder.setParent(createdFolder.getId());
+        fileFolder.setFolder(createdFolder.getId());
+        fileFolder.setFile(null);
+        fileFolder.setDepth(0);
+        FileFolder createdTree = fileFolderRepo.save(fileFolder);
 
     }
 
@@ -118,7 +92,7 @@ public class FileDataService {
         fileHistory.setId(null);
         fileHistory.setType("CREATE");
         fileHistory.setModified_by(username);
-        fileHistory.setFilePath(subfolder);
+        fileHistory.setFilePath(fileName);
         fileHistory.setOwner(username);
         fileHistory.setDate_modified(fileEntity1.getDate_created());
         FileHistory fileHistory1 = fileHistoryRepo.saveAndFlush(fileHistory);
@@ -130,6 +104,21 @@ public class FileDataService {
         FileEntity newlyAddFile = fileRepository.findById(fileEntity1.getId()).orElseThrow(null);
         metadataRepository.saveAll(metadata);
         return newlyAddFile;
+    }
+
+    public void createNewDirectory(String username, String fileName, MetadataPayload metadataPayload, String subfolder, int fileSize, String fileSizeUnit){
+        Folder newFolder = new Folder();
+
+//        FileHistory fileHistory = new FileHistory();
+//        fileHistory.setFile();
+//        fileHistory.setDate_created(fileEntity1.getDate_created());
+//        fileHistory.setId(null);
+//        fileHistory.setType("CREATE");
+//        fileHistory.setModified_by(username);
+//        fileHistory.setFilePath(subfolder);
+//        fileHistory.setOwner(username);
+//        fileHistory.setDate_modified(fileEntity1.getDate_created());
+//        FileHistory fileHistory1 = fileHistoryRepo.saveAndFlush(fileHistory);
     }
 
     public void deleteFile(String filename, String subfolder, Integer fileId) throws IOException {

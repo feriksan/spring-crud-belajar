@@ -24,6 +24,7 @@ public class Folder {
     private Timestamp createdAt;
     private String owner;
     private String url;
+    private int parent;
 
     @OneToMany(
             mappedBy = "folder",

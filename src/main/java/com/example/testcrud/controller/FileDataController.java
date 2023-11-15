@@ -2,17 +2,14 @@ package com.example.testcrud.controller;
 
 import com.example.testcrud.entity.*;
 import com.example.testcrud.payload.MetadataPayload;
-import com.example.testcrud.payload.UploadFileResponse;
 import com.example.testcrud.payload.UrlPayload;
 import com.example.testcrud.repository.FolderRepo;
-import com.example.testcrud.repository.SubFolder;
+import com.example.testcrud.repository.SubFolderRepo;
 import com.example.testcrud.service.FetchUserFromPayload;
 import com.example.testcrud.service.FileDataService;
 import com.example.testcrud.service.FileEncrypterService;
 import com.example.testcrud.service.FileStorageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +45,7 @@ public class FileDataController {
     private FolderRepo folderRepo;
 
     @Autowired
-    private SubFolder subFolderRepo;
+    private SubFolderRepo subFolderRepo;
 
     @Autowired
     private FetchUserFromPayload fetchUserFromPayload;
@@ -95,6 +91,10 @@ public class FileDataController {
         folder.setUrl(userSubfolder);
         Folder createdFolder = folderRepo.save(folder);
         fileStorageService.createSubfolder(userSubfolder);
+        if(folder.getParent() != 0){
+            fileDataService.documenTreeInsert(createdFolder);
+        }
+//        fileDataService.documenTreeInsert(folder.getId(), folder.getId(), 2);
         return new ResponseEntity<>(createdFolder, HttpStatus.CREATED);
     }
 

@@ -133,7 +133,6 @@ class DashboardComponent extends Component{
 }
 
 function ContentDashboard(fileArray){
-    console.log(fileArray)
     const {
         token: {colorBgContainer},
     } = theme.useToken();
@@ -147,6 +146,14 @@ function ContentDashboard(fileArray){
     const [uploading, setUploading] = useState(false);
     const [form] = Form.useForm();
     const [formFolder] = Form.useForm();
+
+    const reloadFolder = (dataBaru) => {
+        console.log("Data baru")
+        console.log(dataBaru)
+        console.log("data Lama")
+        console.log(folderListState)
+        setFolderListState(dataBaru)
+    }
 
     const addFolder = (data) => {
         console.log(data)
@@ -231,7 +238,7 @@ function ContentDashboard(fileArray){
         count++
     });
     folderListState.forEach(element => {
-        cardItemFolder.push(<CardItemFolder triggerDrawer={drawerOpen} data={element} id={count}/>)
+        cardItemFolder.push(<CardItemFolder triggerDrawer={reloadFolder} data={element} id={count}/>)
         count++
     });
 
@@ -449,4 +456,5 @@ function DashboardItem({children}){
         </Layout>
     );
 }
+
 export default DashboardComponent;

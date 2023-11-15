@@ -3,9 +3,21 @@ import {FolderOutlined
 } from '@ant-design/icons';
 import { Card, Col } from 'antd';
 import '../assets/disableStyleSelection.css'
+import API from "../helper/API.js";
 const { Meta } = Card;
+const api = new API()
 
 const CardItemFolder = ({triggerDrawer, data, id}) =>{
+
+    const getFile = async(params) => {
+        console.log("Dipanggil")
+        await api
+            .getFileAndDir(params)
+            .then((response) => {
+                console.log(response)
+                triggerDrawer(response.data.Folder)
+            })
+    };
     const handleClick = event =>{
         console.log(event.detail)
         switch (event.detail){
@@ -14,7 +26,8 @@ const CardItemFolder = ({triggerDrawer, data, id}) =>{
                 break
             }
             case 2:{
-                alert("Your file is being uploaded!")
+                // alert("Your file is being uploaded!: " + data.id)
+                {getFile(2)}
                 console.log("Double")
                 break
             }
