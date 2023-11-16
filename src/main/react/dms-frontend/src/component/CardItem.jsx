@@ -8,6 +8,8 @@ import { Button } from 'antd';
 import '../assets/disableStyleSelection.css'
 
 const CardItem = ({triggerDrawer, data, id}) =>{
+    console.log("Cek data")
+    console.log(data)
     const handleClick = event =>{
         switch (event.detail){
             case 1:{

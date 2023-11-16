@@ -34,18 +34,49 @@ public class FileDataService {
     public List<FileEntity> getFileByUserandLevel(String username, int level){
         return fileRepository.findByCreatedAndLevel(username, level);
     }
+    public List<FileEntity> getFileByUserAndParent(String username, int parent){
+        return fileRepository.findByCreatedAndFolder(username, parent);
+    }
     public List<FileEntity> getFileByUserAndLevel(String username, int level, int parent){
         return fileRepository.findByCreatedAndLevel(username, level);
     }
 
-    public void documenTreeInsert(Folder createdFolder){
+    public FileFolder documenTreeInsert(Folder createdFolder){
         FileFolder fileFolder = new FileFolder();
         fileFolder.setParent(createdFolder.getId());
         fileFolder.setFolder(createdFolder.getId());
         fileFolder.setFile(null);
         fileFolder.setDepth(0);
         FileFolder createdTree = fileFolderRepo.save(fileFolder);
+        return createdTree;
+    }
+    public String documenTreeInsert(FileEntity createdFile){
+        List<FileFolder> bulkInsert = new ArrayList<>();
+        FileFolder fileFolder = new FileFolder();
+        fileFolder.setParent(createdFile.getId());
+        fileFolder.setFile(createdFile.getId());
+        fileFolder.setFolder(null);
+        fileFolder.setDepth(0);
+        bulkInsert.add(fileFolder);
+        int childLevel = fileFolderRepo.findChildrenLevel(createdFile.getId());
+        int parentLevel = fileFolderRepo.findParentLevel(createdFile.getParent());
+        FileFolder fileFolderTree = new FileFolder();
+        fileFolderTree.setParent(createdFile.getParent());
+        fileFolderTree.setFile(createdFile.getId());
+        fileFolderTree.setDepth(childLevel + parentLevel + 1);
+        bulkInsert.add(fileFolderTree);
+        fileFolderRepo.saveAll(bulkInsert);
 
+        return "Berhasil";
+    }
+    public FileFolder documenTreeInsertHieracy(int child, int parent){
+        int childLevel = fileFolderRepo.findChildrenLevel(child);
+        int parentLevel = fileFolderRepo.findParentLevel(parent);
+        FileFolder fileFolderTree = new FileFolder();
+        fileFolderTree.setParent(parent);
+        fileFolderTree.setFile(child);
+        fileFolderTree.setDepth(childLevel + parentLevel + 1);
+        return fileFolderRepo.save(fileFolderTree);
     }
 
     public List<Object> getFileByUserGroupByDate(String username){
@@ -73,7 +104,7 @@ public class FileDataService {
     }
 
     @Transactional
-    public FileEntity createNewFile(String username, String fileName, MetadataPayload metadataPayload, String subfolder, int fileSize, String fileSizeUnit) {
+    public FileEntity createNewFile(String username, String fileName, MetadataPayload metadataPayload, String subfolder, int fileSize, String fileSizeUnit, Integer parent) {
         FileEntity fileEntity = new FileEntity();
         fileEntity.setId(null);
         fileEntity.setSubfolder(subfolder);
@@ -84,8 +115,16 @@ public class FileDataService {
         fileEntity.setDate_modified(Timestamp.valueOf(LocalDateTime.now()));
         fileEntity.setCreated_by(username);
 
-        FileEntity fileEntity1 = fileRepository.saveAndFlush(fileEntity);
-
+        FileEntity fileEntity1;
+        if(parent != null){
+            fileEntity.setParent(parent);
+            fileEntity1 = fileRepository.saveAndFlush(fileEntity);
+//            documenTreeInsert(fileEntity1);
+        }else{
+            fileEntity.setParent(0);
+            fileEntity1 = fileRepository.saveAndFlush(fileEntity);
+//            documenTreeInsert(fileEntity1);
+        }
         FileHistory fileHistory = new FileHistory();
         fileHistory.setFile(fileEntity1);
         fileHistory.setDate_created(fileEntity1.getDate_created());

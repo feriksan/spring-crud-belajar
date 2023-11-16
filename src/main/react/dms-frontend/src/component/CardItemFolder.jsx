@@ -9,17 +9,17 @@ const api = new API()
 
 const CardItemFolder = ({triggerDrawer, data, id}) =>{
 
-    const getFile = async(params) => {
+    const getFile = async(params, path) => {
         console.log("Dipanggil")
         await api
-            .getFileAndDir(params)
+            .getFileInDir(params)
             .then((response) => {
                 console.log(response)
-                triggerDrawer(response.data.Folder)
+                triggerDrawer(response, params, path)
             })
     };
-    const handleClick = event =>{
-        console.log(event.detail)
+    const handleClick = (event, data, path) =>{
+        console.log(event)
         switch (event.detail){
             case 1:{
                 console.log("Single")
@@ -27,7 +27,7 @@ const CardItemFolder = ({triggerDrawer, data, id}) =>{
             }
             case 2:{
                 // alert("Your file is being uploaded!: " + data.id)
-                {getFile(2)}
+                {getFile(data, path)}
                 console.log("Double")
                 break
             }
@@ -39,7 +39,7 @@ const CardItemFolder = ({triggerDrawer, data, id}) =>{
     return (
         <Col span={6} style={{padding: 10}}>
             <Card key={data.id}
-                  onClick={handleClick}
+                  onClick={e => handleClick(e, data.id, data.folder)}
                   hoverable
                   style={{ width: 240 }}
                   cover={<FolderOutlined key={data.id} style={{ padding: '50px', fontSize: '100px', color: '#595959' }} />}

@@ -22,10 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -59,6 +56,15 @@ public class FileDataController {
         return ResponseEntity.ok(fileDataService.getFileByUser(username));
     }
 
+    @GetMapping("/get_file_by_user/{parent:.+}")
+    public ResponseEntity<List<FileEntity>> getfileByUserAndParent(@PathVariable int parent) throws Exception {
+        String username = getUser().getUsername();
+        if(username==null){
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(fileDataService.getFileByUserAndParent(username, parent));
+    }
+
     @GetMapping("/get_file_by_month")
     public ResponseEntity<List<Object>> getFileByUserGroupByMonth() throws Exception{
         String username = getUser().getUsername();
@@ -69,7 +75,7 @@ public class FileDataController {
     }
 
     @PostMapping("create_new_file")
-    public ResponseEntity<FileEntity> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload, @RequestParam("fileSize") int fileSize, @RequestParam("fileSizeUnit") String fileSizeUnit) throws Exception {
+    public ResponseEntity<FileEntity> createNewFile(@RequestParam("file") MultipartFile file, @RequestParam("subfolder") String subfolder, @RequestParam("metadata") String metadataPayload, @RequestParam("fileSize") int fileSize, @RequestParam("fileSizeUnit") String fileSizeUnit, @RequestParam(value = "folder", required = false) Integer parent) throws Exception {
         String username = getUser().getUsername();
         String role = getUser().getRole();
         String userSubfolder = role + "/" + username + "/" + subfolder;
@@ -77,25 +83,26 @@ public class FileDataController {
         String fileName = fileStorageService.storeFile(file, userSubfolder);
         MetadataPayload metadataPayload1 = objectMapper.readValue(metadataPayload, MetadataPayload.class);
 
-        FileEntity fileCreated = fileDataService.createNewFile(username,fileName,metadataPayload1, userSubfolder, fileSize, fileSizeUnit);
+        FileEntity fileCreated = fileDataService.createNewFile(username,fileName,metadataPayload1, userSubfolder, fileSize, fileSizeUnit, parent);
         return ResponseEntity.ok(fileCreated);
     }
 
     @PostMapping("create_new_dir")
-    public ResponseEntity<Folder> createNewDir(@RequestBody Folder folder) throws Exception {
-        String username = getUser().getUsername();
-        String role = getUser().getRole();
-        folder.setOwner(username);
-        folder.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        String userSubfolder = role + "/" + username + "/" + folder.getFolder();
-        folder.setUrl(userSubfolder);
-        Folder createdFolder = folderRepo.save(folder);
-        fileStorageService.createSubfolder(userSubfolder);
-        if(folder.getParent() != 0){
+    public ResponseEntity<?> createNewDir(@RequestBody Folder folder) throws Exception {
+        if(!Objects.equals(folder.getFolder(), folderRepo.findByFolder(folder.getFolder()).orElseThrow(null).getFolder())){
+            String username = getUser().getUsername();
+            String role = getUser().getRole();
+            folder.setOwner(username);
+            folder.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            String userSubfolder = role + "/" + username + "/" + folder.getFolder();
+            folder.setUrl(userSubfolder);
+            Folder createdFolder = folderRepo.save(folder);
+            fileStorageService.createSubfolder(userSubfolder);
             fileDataService.documenTreeInsert(createdFolder);
+            return new ResponseEntity<>(createdFolder, HttpStatus.CREATED);
+        }else{
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Duplicate Entry");
         }
-//        fileDataService.documenTreeInsert(folder.getId(), folder.getId(), 2);
-        return new ResponseEntity<>(createdFolder, HttpStatus.CREATED);
     }
 
     @PostMapping("create_sub_dir")
@@ -125,6 +132,7 @@ public class FileDataController {
         List<FileEntity> getFile = fileDataService.getFileByUserandLevel(getUser().getUsername(), level);
         if(level > 1){
             List<SubFolderEntity> getFolder = subFolderRepo.findByLevelFolder(level);
+
             fileFolder.put("Folder", getFolder);
         }else{
             List<Folder> getFolder = folderRepo.findByOwner(getUser().getUsername());

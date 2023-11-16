@@ -100,4 +100,7 @@ export default class API{
     getFileAndDir = (params) =>{
         return this.init().get("/api/v1/filedata/get_file_and_folder/" + params)
     }
+    getFileInDir = (params) => {
+        return this.init().get("/api/v1/filedata/get_file_by_user/" + params)
+    }
 }

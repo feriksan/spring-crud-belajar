@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "folder_tree")
 public class FileFolder {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer parent;
     private Integer folder;
     private Integer file;

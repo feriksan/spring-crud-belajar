@@ -28,8 +28,10 @@ import Login from "../../Page/Auth/Login.jsx";
 import API from "../../helper/API.js";
 import CardItemFolder from "../../component/CardItemFolder.jsx";
 import '../../assets/disableStyleSelection.css'
+import FileParser from '../../helper/FileDataParser.js'
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 const api = new API()
+const fileParser = new FileParser()
 class DashboardComponent extends Component{
     constructor(props) {
         super(props);
@@ -59,30 +61,30 @@ class DashboardComponent extends Component{
     renderList = (dataFile, dataFolder) =>{
         // const unique = [...new Set(data.map(item => item.subfolder))];
         // this.setState({folderArray:unique})
-        let dataList = []
-        dataFile.forEach(element => {
-            const metadataList = [];
-            const fileList = [];
-            element.fileHistories.forEach(file => {
-                file.fileMetadata.forEach(metadata => {
-                    metadataList.push(metadata)
-                })
-                let files = {
-                    "id":element.id,
-                    "filename": file.filePath,
-                    "subfolder":element.subfolder,
-                    "fileSize": element.fileSize + element.fileSizeUnit,
-                    "dateCreated": file.date_created,
-                    "metadata": metadataList
-                }
-                fileList.push(files)
-            })
-            const dataCard = {
-                "owner": element.fileHistories[0].owner,
-                "data": fileList
-            };
-            dataList.push(dataCard)
-        })
+        const dataList = fileParser.parseFileData(dataFile);
+        // dataFile.forEach(element => {
+        //     const metadataList = [];
+        //     const fileList = [];
+        //     element.fileHistories.forEach(file => {
+        //         file.fileMetadata.forEach(metadata => {
+        //             metadataList.push(metadata)
+        //         })
+        //         let files = {
+        //             "id":element.id,
+        //             "filename": file.filePath,
+        //             "subfolder":element.subfolder,
+        //             "fileSize": element.fileSize + element.fileSizeUnit,
+        //             "dateCreated": file.date_created,
+        //             "metadata": metadataList
+        //         }
+        //         fileList.push(files)
+        //     })
+        //     const dataCard = {
+        //         "owner": element.fileHistories[0].owner,
+        //         "data": fileList
+        //     };
+        //     dataList.push(dataCard)
+        // })
         this.setState(
             {
                 fileArray:dataList,
@@ -138,6 +140,7 @@ function ContentDashboard(fileArray){
     } = theme.useToken();
     const [folderListState, setFolderListState] = useState(fileArray.folderArray)
     const [fileListState, setFileListState] = useState(fileArray.fileArray)
+    const [fileInsideFolderListState, setFileInsideFolderListState] = useState(null)
     const [prevOpen, setPrevOpen] = useState();
     const [drawerData, setDrawerData] = useState();
     const [files, setFiles] = useState();
@@ -146,13 +149,13 @@ function ContentDashboard(fileArray){
     const [uploading, setUploading] = useState(false);
     const [form] = Form.useForm();
     const [formFolder] = Form.useForm();
+    const [currDir, setCurrDir] = useState(0)
+    const [currDirPath, setCurrDirPath] = useState("")
 
-    const reloadFolder = (dataBaru) => {
-        console.log("Data baru")
-        console.log(dataBaru)
-        console.log("data Lama")
-        console.log(folderListState)
-        setFolderListState(dataBaru)
+    const reloadFolder = (dataBaru, changeDir, dirpath) => {
+        setFileInsideFolderListState(fileParser.parseFileData(dataBaru.data))
+        setCurrDirPath(dirpath)
+        setCurrDir(changeDir)
     }
 
     const addFolder = (data) => {
@@ -169,6 +172,11 @@ function ContentDashboard(fileArray){
                 setFolderListState(folderListNew)
                 formFolder.resetFields();
                 {handleFolderCancel()}
+                message.success('Create Directory Succesfull')
+            })
+            .catch((e) => {
+                console.log(e)
+                message.error('Create Directory Failed: ' + e.response.data)
             })
     }
 
@@ -185,9 +193,10 @@ function ContentDashboard(fileArray){
             }
             metadataJson.metadata.push(json)
         })
-        const subfolder = "test3";
+        const subfolder = currDirPath;
         formData.append("file", files);
         formData.append("fileSize", files.size)
+        formData.append("folder", currDir)
         formData.append("fileSizeUnit", "Kb")
         formData.append("metadata", JSON.stringify(metadataJson));
         formData.append("subfolder", subfolder);
@@ -225,9 +234,32 @@ function ContentDashboard(fileArray){
     }
     var itemsCollaps = [];
     var itemsCollapsFolder = [];
+    var itemsCollapsFile = [];
     var count = 1;
     let cardItemNotGroup = [];
     let cardItemFolder = [];
+    let cardItemFileInsideFolder = [];
+    if(fileInsideFolderListState!=null){
+        fileInsideFolderListState.forEach(element => {
+            const cardItemNotGroupItem = [
+                element.data.map(cardData => {
+                    return <CardItem triggerDrawer={drawerOpen} data={cardData} id={count}/>
+                })
+            ]
+            cardItemFileInsideFolder .push(cardItemNotGroupItem)
+            count++
+        });
+        const itemObjectFile = {
+            key: count,
+            label: "File",
+            children: [
+                <Row>
+                    {cardItemFileInsideFolder}
+                </Row>
+            ],
+        }
+        itemsCollapsFile.push(itemObjectFile)
+    }
     fileListState.forEach(element => {
         const cardItemNotGroupItem = [
             element.data.map(cardData => {
@@ -422,8 +454,14 @@ function ContentDashboard(fileArray){
                     </Col>
                 </Row>
                 <br />
-                <Collapse defaultActiveKey={['1']} ghost items={itemsCollapsFolder} className="disable-text-selection" />
-                <Collapse defaultActiveKey={['1']} ghost items={itemsCollaps} className="disable-text-selection" />
+                {/*{itemsCollapsFile.length !== 0 ? itemsCollapsFile.children: itemsCollapsFolder.children.map(element => {*/}
+                {/*    console.log(element)*/}
+                {/*})}*/}
+                {/*<Collapse defaultActiveKey={['1']} ghost items={itemsCollapsFile} className="disable-text-selection" />*/}
+                <div>
+                    <Collapse defaultActiveKey={['1']} ghost items={itemsCollapsFile.length !== 0 ? itemsCollapsFile: itemsCollapsFolder} className="disable-text-selection" />
+                </div>
+                {/*<Collapse defaultActiveKey={['1']} ghost items={itemsCollaps} className="disable-text-selection" />*/}
             </div>
             <Drawer title="File Detail" placement="right" onClose={onClose} open={prevOpen}>
                 <DrawerContent drawerData={drawerData}/>

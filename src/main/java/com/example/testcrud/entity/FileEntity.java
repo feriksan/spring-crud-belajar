@@ -24,6 +24,7 @@ public class FileEntity {
     private int fileSize;
     private String fileSizeUnit;
     private String subfolder;
+    private Integer parent;
     private int level;
     private Timestamp date_created;
     private Timestamp date_modified;

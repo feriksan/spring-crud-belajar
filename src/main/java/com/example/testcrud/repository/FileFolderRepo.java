@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FileFolderRepo extends JpaRepository<FileFolder, Integer> {
-    @Query(nativeQuery = true,value = "select * from file_folder where parent=?")
+    @Query(nativeQuery = true,value = "select depth from folder_tree where parent=?")
     int findParentLevel(int parent);
-    @Query(nativeQuery = true,value = "select * from file_folder where children=?")
+    @Query(nativeQuery = true,value = "select depth from folder_tree where file=?")
     int findChildrenLevel(int children);
 
     @Modifying
