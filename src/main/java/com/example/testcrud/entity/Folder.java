@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
@@ -15,33 +15,23 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-@Table(name = "file_history")
-public class FileHistory {
-    
+@Table(name = "folder")
+public class Folder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    @Column(name = "file_path")
-    private String filePath;
+    private int id;
+    private String folder;
+    private Timestamp createdAt;
     private String owner;
-    private String type;
-    private Date date_created;
-    private Date date_modified;
-    private String modified_by;
-
-    @ManyToOne
-    @JoinColumn(name = "file_id")
-    @JsonIgnore
-    private FileEntity file;
+    private String url;
+    private int parent;
 
     @OneToMany(
-            mappedBy = "fileHistory",
+            mappedBy = "folder",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<FileMetadata> fileMetadata;
-
-
-
+    @JsonIgnore
+    private List<SubFolderEntity> subFolders;
 }

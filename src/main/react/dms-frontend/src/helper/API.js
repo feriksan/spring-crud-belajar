@@ -74,7 +74,33 @@ export default class API{
     }
 
     download = (params) => {
-        console.log(params)
         return this.initBlob().get("/uploadFile/downloadFile/"+params)
+    }
+
+    preview =(params) => {
+        return this.initBlob().get("/uploadFile/downloadFile/"+params)
+    }
+
+    delete = (params) => {
+        return this.init().delete("/api/v1/filedata/deleteFile/" +params)
+    }
+
+    getDir = () =>{
+        return this.init().get("/api/v1/filedata/get_root_folder")
+    }
+
+    getSubDir = (params) => {
+        return this.init().get("filedata/get_folder_structure/" + params)
+    }
+
+    addFolder = (params) => {
+        return this.init().post("/api/v1/filedata/create_new_dir", params)
+    }
+
+    getFileAndDir = (params) =>{
+        return this.init().get("/api/v1/filedata/get_file_and_folder/" + params)
+    }
+    getFileInDir = (params) => {
+        return this.init().get("/api/v1/filedata/get_file_by_user/" + params)
     }
 }

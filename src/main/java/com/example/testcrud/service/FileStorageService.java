@@ -27,10 +27,6 @@ public class FileStorageService {
     private final Path fileUpload;
     private final Path fileEncrypt;
 
-
-    @Autowired
-    private FileRepository fileRepository;
-
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties){
         Path fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir()).toAbsolutePath().normalize();
@@ -68,9 +64,7 @@ public class FileStorageService {
     }
 
     public void createSubfolder(String subfolder) {
-
         File newfolder = new File(fileUpload.toString() + "/" + subfolder);
-
         if (!newfolder.exists()) {
             if (newfolder.mkdirs()) {
                 System.out.println("Directory is created!");
@@ -104,6 +98,7 @@ public class FileStorageService {
         try{
             Path newDir = this.fileUpload.resolve(subfolder);
             Path filePath = newDir.resolve(fileName).normalize();
+            System.out.println(filePath);
             Resource resource = new UrlResource(filePath.toUri());
             if(resource.exists()) {
                 return resource;
@@ -113,6 +108,11 @@ public class FileStorageService {
         } catch (MalformedURLException ex) {
             throw new FileNotFoundException("File not found " + fileName, ex);
         }
+    }
 
+    public void deleteFileAsResource(String fileName, String subfolder) throws IOException {
+        Path newDir = this.fileUpload.resolve(subfolder);
+        Path filePath = newDir.resolve(fileName).normalize();
+        Files.delete(filePath);
     }
 }

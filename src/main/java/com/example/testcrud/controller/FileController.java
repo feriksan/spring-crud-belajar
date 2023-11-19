@@ -14,8 +14,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
@@ -58,12 +60,13 @@ public class FileController {
 //                .collect(Collectors.toList()), HttpStatus.OK);
 //    }
 
-    @GetMapping("/downloadFile/{subfolder:.+}/{fileName:.+}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, @PathVariable String subfolder, HttpServletRequest request) throws Exception {
+    @RequestMapping("/downloadFile/{fileName:.+}/**")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) throws Exception {
         // Load file as Resource
+        String restOfTheUrl = new AntPathMatcher().extractPathWithinPattern(request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE).toString(),request.getRequestURI());
         Resource resource;
 
-        resource = fileStorageService.loadFileAsResource(fileName, fetchUserFromPayload.getUser().getRole() + "/" + fetchUserFromPayload.getUser().getUsername() + "/" + subfolder);
+        resource = fileStorageService.loadFileAsResource(fileName, restOfTheUrl);
 
         // Try to determine file's content type
         String contentType = null;
